@@ -280,6 +280,31 @@ label.field{ display:flex; flex-direction:column; gap:5px; font-size:12px; color
 
 .footnote{ font-size:12px; color:var(--parch-dim); font-style:italic; margin-top:8px; }
 
+/* modal */
+.modal-overlay{
+  position:fixed; inset:0; z-index:100;
+  background:rgba(0,0,0,.7); backdrop-filter:blur(4px);
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; pointer-events:none; transition:opacity .2s;
+}
+.modal-overlay.open{ opacity:1; pointer-events:auto; }
+.modal-box{
+  background:linear-gradient(180deg,#1a1613,#151210);
+  border:1px solid var(--gold); border-radius:12px;
+  padding:24px; max-width:680px; width:90vw; max-height:85vh; overflow-y:auto;
+  position:relative;
+}
+.modal-box::-webkit-scrollbar{ width:4px; }
+.modal-box::-webkit-scrollbar-thumb{ background:var(--hairline); border-radius:2px; }
+.modal-close{
+  position:absolute; top:12px; right:14px;
+  all:unset; cursor:pointer; font-size:20px; color:var(--parch-dim); line-height:1;
+  padding:4px 8px; border-radius:4px;
+}
+.modal-close:hover{ background:rgba(255,255,255,.07); color:var(--parch); }
+.modal-box h2{ font-family:'Cinzel',serif; font-size:16px; color:var(--gold-bright); margin:0 0 14px; }
+.modal-box .modal-body{ display:flex; flex-direction:column; gap:12px; }
+
 /* shortcut panel */
 .shortcuts{
   background:linear-gradient(180deg,#1a1613,#151210);
@@ -350,6 +375,15 @@ label.field{ display:flex; flex-direction:column; gap:5px; font-size:12px; color
 .sc-ouro{ font-family:'JetBrains Mono',monospace; font-size:16px; color:var(--gold-bright); }
 .sc-empty{ color:var(--parch-dim); font-style:italic; font-size:11px; }
 .sc-stats{ display:flex; flex-direction:column; gap:6px; }
+.sc-actions{ display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.sc-modal-btn{
+  all:unset; cursor:pointer; text-align:center;
+  font-family:'Cinzel',serif; font-size:11px; letter-spacing:.02em;
+  padding:8px 4px; border-radius:6px; border:1px solid var(--hairline);
+  color:var(--parch); background:rgba(255,255,255,.03); display:flex; align-items:center; justify-content:center; gap:4px; line-height:1.2;
+}
+.sc-modal-btn:hover{ background:rgba(255,255,255,.07); border-color:var(--gold); }
+.sc-modal-emoji{ font-size:14px; }
 .sc-stat-row{ display:flex; align-items:center; gap:4px; font-size:11px; font-family:'JetBrains Mono',monospace; color:var(--parch-dim); }
 .sc-stat-row span{ flex:1; }
 .sc-stat-row .sc-stat-val{ color:var(--parch); font-size:12px; text-align:right; padding-right:4px; min-width:44px; }
@@ -702,6 +736,13 @@ ol.steps li em{ color:var(--gold-bright); font-style:normal; }
 
   <aside class="shortcuts" id="shortcutPanel"></aside>
 
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-box" id="modalBox">
+      <button class="modal-close" id="modalClose">✕</button>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
 </div>
 
 <script>
@@ -1012,15 +1053,15 @@ document.getElementById('rollAllBtn').addEventListener('click', ()=>{
   renderAll();
 });
 
-document.querySelectorAll('.pill-btn[data-adj]').forEach(b=>{
-  b.addEventListener('click', ()=>{
-    const attr = b.dataset.adj;
-    const d = parseInt(b.dataset.d);
-    const s = state[attr];
-    if(s.ini==null) return;
-    s.cur = clamp(s.cur + d, 0, s.ini);
-    save(); renderFicha(); renderSideStats(); renderShortcuts();
-  });
+document.addEventListener('click', e => {
+  const b = e.target.closest('.pill-btn[data-adj]');
+  if(!b) return;
+  const attr = b.dataset.adj;
+  const d = parseInt(b.dataset.d);
+  const s = state[attr];
+  if(s.ini==null) return;
+  s.cur = clamp(s.cur + d, 0, s.ini);
+  save(); renderFicha(); renderSideStats(); renderShortcuts();
 });
 
 document.getElementById('roll1Btn').addEventListener('click', ()=>{
@@ -1514,199 +1555,196 @@ function renderShortcuts(){
       <button class="pill-btn" data-adj="${key}" data-d="-1" ${ini==null||ini===0?'disabled':''}>–</button>
       <button class="pill-btn" data-adj="${key}" data-d="1" ${ini==null||ini===0?'disabled':''}>+</button></div>`;
   };
+  const sor = state.sor;
+  const btn = (emoji, label, modalId) =>
+    `<button class="sc-modal-btn" data-modal="${modalId}"><span class="sc-modal-emoji">${emoji}</span> ${label}</button>`;
   panel.innerHTML = `
     <div class="shortcut-card">
-      <h4><span class="sc-num">01</span> Testar a Sorte</h4>
-      <div class="sc-row" style="justify-content:space-between;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--parch-dim);">
-        <span>Sorte: <b style="color:var(--parch)">${state.sor.cur ?? '-'}</b> / ${state.sor.ini ?? '-'}</span>
-        <button class="sc-btn primary" id="scLuckBtn" ${(!state.sor.ini || state.sor.cur<=0)?'disabled':''}>🎲 Testar</button>
-      </div>
-      <div id="scLuckResult"></div>
-    </div>
-    <div class="shortcut-card">
-      <h4><span class="sc-num">02</span> Atributos</h4>
+      <h4>Atributos</h4>
       <div class="sc-stats">
         ${mkStat('HABILIDADE','hab')}
         ${mkStat('ENERGIA','ene')}
         ${mkStat('SORTE','sor')}
-        <div class="sc-stat-row"><span>MAGIA</span><span class="sc-stat-val">${spellsLeft()} / ${state.mag.ini ?? '-'}</span><span class="tag" style="font-size:9px;">encantos</span></div>
+        <div class="sc-stat-row"><span>MAGIA</span><span class="sc-stat-val">${spellsLeft()} / ${state.mag.ini ?? '-'}</span></div>
       </div>
     </div>
-    <div class="shortcut-card">
-      <h4><span class="sc-num">03</span> Batalhas</h4>
-      <div id="scCombatBody"></div>
-    </div>
-    <div class="shortcut-card">
-      <h4><span class="sc-num">04</span> Magias</h4>
-      <div id="scMagicBody"></div>
-    </div>
-    <div class="shortcut-card">
-      <h4><span class="sc-num">05</span> Inventário</h4>
-      <div id="scInvBody"></div>
+    <div class="sc-actions">
+      ${btn('🎲','Testar a Sorte','luck')}
+      ${btn('⚔','Batalha','combat')}
+      ${btn('🔮','Magias','magic')}
+      ${btn('🎒','Inventário','inventory')}
     </div>
   `;
 
-  // ---- luck ----
-  document.getElementById('scLuckBtn')?.addEventListener('click', ()=>{
-    if(!state.sor.ini || state.sor.cur<=0) return;
-    const vals = [rollDie(), rollDie()];
-    const sum = vals[0]+vals[1];
-    const lucky = sum <= state.sor.cur;
-    state.sor.cur = clamp(state.sor.cur - 1, 0, state.sor.ini);
-    save(); renderFicha(); renderSideStats(); renderShortcuts();
-    document.getElementById('scLuckResult').innerHTML = `<div class="sc-result ${lucky?'good':'bad'}">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Você TEVE sorte!':'Você NÃO teve sorte.'} <span style="opacity:.6">(${state.sor.cur}/${state.sor.ini})</span></div>`;
-  });
-
-  renderScCombat();
-  renderScMagic();
-  renderScInventory();
+  panel.querySelectorAll('.sc-modal-btn').forEach(b=>b.addEventListener('click', ()=>{
+    const modal = b.dataset.modal;
+    if(modal==='luck') renderModalLuck();
+    else if(modal==='combat') renderModalCombat();
+    else if(modal==='magic') renderModalMagic();
+    else if(modal==='inventory') renderModalInventory();
+  }));
 }
 
-function renderScCombat(){
-  const body = document.getElementById('scCombatBody');
+function openModal(title, html){
+  document.getElementById('modalBody').innerHTML = `<h2>${title}</h2>${html}`;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+document.getElementById('modalClose').addEventListener('click', ()=>{
+  document.getElementById('modalOverlay').classList.remove('open');
+});
+document.getElementById('modalOverlay').addEventListener('click', e=>{
+  if(e.target===e.currentTarget) document.getElementById('modalOverlay').classList.remove('open');
+});
+
+function renderModalLuck(){
+  const sor = state.sor;
+  const canTest = sor.ini && sor.cur>0;
+  openModal('🎲 Testar a Sorte', `
+    <p style="color:var(--parch-dim);margin:0 0 8px;">Sorte atual: <b style="color:var(--parch)">${sor.cur??'-'}</b> / ${sor.ini??'-'}</p>
+    <button class="btn primary" id="modalLuckBtn" ${canTest?'':'disabled'}>🎲 Testar a Sorte</button>
+    <div id="modalLuckResult" style="margin-top:8px;"></div>
+  `);
+  document.getElementById('modalLuckBtn')?.addEventListener('click', ()=>{
+    if(!sor.ini || sor.cur<=0) return;
+    const vals = [rollDie(), rollDie()];
+    const sum = vals[0]+vals[1];
+    const lucky = sum <= sor.cur;
+    sor.cur = clamp(sor.cur - 1, 0, sor.ini);
+    save(); renderFicha(); renderSideStats(); renderShortcuts();
+    document.getElementById('modalLuckResult').innerHTML = `<div class="sc-result ${lucky?'good':'bad'}">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Você TEVE sorte!':'Você NÃO teve sorte.'} <span style="opacity:.6">(${sor.cur}/${sor.ini})</span></div>`;
+  });
+}
+
+function renderModalCombat(){
   const m = activeMonster();
+  const monsterHtml = m && !m.dead 
+    ? `<div class="sc-monster">${escapeHtml(m.name)} — HAB <b>${m.hab}</b>/${m.habIni} · ENE <b>${m.ene}</b>/${m.eneIni}</div>
+       <div class="sc-row">
+         <button class="btn primary" id="modalAtkBtn">⚔ Atacar</button>
+         <button class="btn danger" id="modalFleeBtn">Fugir</button>
+         <button class="btn" id="modalMDmg" style="flex:0;">−1 ENE</button>
+       </div>
+       <div id="modalCombatResult"></div>
+       <hr class="divider">
+       <h3 style="margin:8px 0;font-size:13px;">Registro da batalha</h3>
+       <div class="log" id="modalCombatLog" style="max-height:200px;overflow-y:auto;"></div>`
+    : `<div class="sc-add-monster" style="display:grid;grid-template-columns:1fr 1fr 1fr 36px;gap:4px;align-items:end;">
+         <div class="sc-field"><label>Nome</label><input type="text" id="modalMName" placeholder="Goblin"></div>
+         <div class="sc-field"><label>HAB</label><input type="number" id="modalMHab" value="6" min="1"></div>
+         <div class="sc-field"><label>ENE</label><input type="number" id="modalMEne" value="6" min="1"></div>
+         <button class="pill-btn" id="modalAddMonster">+</button>
+       </div>
+       ${m && m.dead ? '<div class="sc-result neutral" style="margin-top:4px;">Criatura derrotada.</div>' : '<div class="sc-empty" style="margin-top:4px;">Nenhuma criatura em combate.</div>'}
+       <hr class="divider">
+       <h3 style="margin:8px 0;font-size:13px;">Registro da batalha</h3>
+       <div class="log" id="modalCombatLog" style="max-height:200px;overflow-y:auto;"></div>`;
+
+  openModal('⚔ Batalha', monsterHtml);
+
+  // Re-populate combat log
+  const logEl = document.getElementById('modalCombatLog');
+  if(logEl){
+    [...state.log].reverse().forEach(e=>{
+      const d = document.createElement('div'); d.className='entry '+(e.cls||''); d.textContent=e.text; logEl.prepend(d);
+    });
+  }
+
   if(m && !m.dead){
-    body.innerHTML = `
-      <div class="sc-monster">${escapeHtml(m.name)} — HAB <b>${m.hab}</b>/${m.habIni} · ENE <b>${m.ene}</b>/${m.eneIni}</div>
-      <div class="sc-row">
-        <button class="sc-btn primary" id="scAttackBtn">⚔ Atacar</button>
-        <button class="sc-btn danger" id="scFleeBtn">Fugir</button>
-        <button class="sc-btn" id="scMonsterDmg" style="flex:0;font-size:10px;">−1 ENE</button>
-      </div>
-      <div id="scCombatResult"></div>
-    `;
-    document.getElementById('scAttackBtn')?.addEventListener('click', ()=>{
+    document.getElementById('modalAtkBtn')?.addEventListener('click', ()=>{
       if(combatBusy) return;
       if(!state.hab.ini){ alert('Role seus índices primeiro.'); return; }
       combatBusy = true;
-      const yVals = [rollDie(), rollDie()];
-      const mVals = [rollDie(), rollDie()];
-      const forceYou = yVals[0]+yVals[1] + state.hab.cur;
-      const forceMon = mVals[0]+mVals[1] + m.hab;
-      let html = `<div class="sc-result neutral">Você ${yVals[0]}+${yVals[1]}+${state.hab.cur}=${forceYou} · ${escapeHtml(m.name)} ${mVals[0]}+${mVals[1]}+${m.hab}=${forceMon}</div>`;
-      if(forceYou === forceMon){
-        logCombat(`Empate (${forceYou} x ${forceMon}) — ambos se defenderam. Jogue novamente.`, 'neutral');
-        html += `<div class="sc-result neutral" style="margin-top:4px;">Empate — ambos se defenderam. Ataque novamente.</div>`;
-        document.getElementById('scCombatResult').innerHTML = html;
-        combatBusy = false;
-      } else if(forceYou > forceMon){
-        const atkNames = ['acertou em cheio', 'atingiu com um golpe brutal', 'cravou a espada', 'desferiu um golpe preciso', 'acertou com violência', 'feriu profundamente'];
-        const verb = atkNames[Math.floor(Math.random()*atkNames.length)];
-        logCombat(`⚔ ${verb} ${m.name} (${forceYou} x ${forceMon}).`, 'hit-you');
+      const yV = [rollDie(),rollDie()], mV = [rollDie(),rollDie()];
+      const fY = yV[0]+yV[1]+state.hab.cur, fM = mV[0]+mV[1]+m.hab;
+      let html = `<div class="sc-result neutral">Você ${yV[0]}+${yV[1]}+${state.hab.cur}=${fY} · ${escapeHtml(m.name)} ${mV[0]}+${mV[1]}+${m.hab}=${fM}</div>`;
+      const res = document.getElementById('modalCombatResult');
+      if(fY===fM){
+        logCombat(`Empate (${fY}x${fM}) — ambos se defenderam.`, 'neutral');
+        html += `<div class="sc-result neutral" style="margin-top:4px;">Empate. Ataque novamente.</div>`;
+        res.innerHTML = html; combatBusy = false;
+      } else if(fY>fM){
+        const v = ['acertou em cheio','atingiu com um golpe brutal','cravou a espada','desferiu um golpe preciso','acertou com violência','feriu profundamente'][Math.floor(Math.random()*6)];
+        logCombat(`⚔ ${v} ${m.name} (${fY}x${fM}).`,'hit-you');
         applyDamage(m,2,false,true);
-        html += `<div class="sc-result good" style="margin-top:4px;">${escapeHtml(m.name)} perdeu 2 ENERGIA (${m.ene}/${m.eneIni}).</div>`;
+        html += `<div class="sc-result good" style="margin-top:4px;">${escapeHtml(m.name)} perdeu 2 ENE (${m.ene}/${m.eneIni}).</div>`;
         if(state.sor.cur>0){
-          html += `<div class="sc-row" style="margin-top:4px;"><button class="sc-btn small" id="scDmgLuck">Testar Sorte (+dano)</button></div>`;
-          document.getElementById('scCombatResult').innerHTML = html;
-          document.getElementById('scDmgLuck')?.addEventListener('click', ()=>{ scLuckDamage(m,true); combatBusy=false; });
-        } else {
-          document.getElementById('scCombatResult').innerHTML = html;
-        }
+          html += `<div class="sc-row" style="margin-top:4px;"><button class="btn small" id="modalDLuck">Testar Sorte (+dano)</button></div>`;
+          res.innerHTML = html;
+          document.getElementById('modalDLuck')?.addEventListener('click', ()=>{ scLuckDamageModal(m,true); combatBusy=false; });
+        } else { res.innerHTML = html; }
         combatBusy = false;
       } else {
-        const atkNames = ['acertou você com um golpe brutal', 'atingiu você com sua arma', 'feriu você profundamente', 'acertou em cheio', 'cravou as garras em você', 'desferiu um golpe terrível'];
-        const verb = atkNames[Math.floor(Math.random()*atkNames.length)];
-        logCombat(`⚔ ${m.name} ${verb} (${forceMon} x ${forceYou}).`, 'hit-monster');
+        const v = ['acertou você com um golpe brutal','atingiu você com sua arma','feriu você profundamente','acertou em cheio','cravou as garras em você','desferiu um golpe terrível'][Math.floor(Math.random()*6)];
+        logCombat(`⚔ ${m.name} ${v} (${fM}x${fY}).`,'hit-monster');
         applyDamage(m,2,true,true);
-        html += `<div class="sc-result bad" style="margin-top:4px;">Você perdeu 2 ENERGIA (${state.ene.cur}/${state.ene.ini}).</div>`;
+        html += `<div class="sc-result bad" style="margin-top:4px;">Você perdeu 2 ENE (${state.ene.cur}/${state.ene.ini}).</div>`;
         if(state.sor.cur>0){
-          html += `<div class="sc-row" style="margin-top:4px;"><button class="sc-btn small" id="scDmgLuckYou">Testar Sorte (−dano)</button></div>`;
-          document.getElementById('scCombatResult').innerHTML = html;
-          document.getElementById('scDmgLuckYou')?.addEventListener('click', ()=>{ scLuckDamage(m,false); combatBusy=false; });
-        } else {
-          document.getElementById('scCombatResult').innerHTML = html;
-        }
+          html += `<div class="sc-row" style="margin-top:4px;"><button class="btn small" id="modalDLuckYou">Testar Sorte (−dano)</button></div>`;
+          res.innerHTML = html;
+          document.getElementById('modalDLuckYou')?.addEventListener('click', ()=>{ scLuckDamageModal(m,false); combatBusy=false; });
+        } else { res.innerHTML = html; }
         combatBusy = false;
       }
       save(); renderFicha(); renderSideStats(); renderMonsters(); renderCombatHead(); renderShortcuts();
     });
-    document.getElementById('scFleeBtn')?.addEventListener('click', ()=>{
+    document.getElementById('modalFleeBtn')?.addEventListener('click', ()=>{
       applyDamage(m,2,true,false);
-      logCombat(`Você fugiu de ${m.name} e sofreu 2 pontos de ENERGIA na fuga.`, 'hit-monster');
-      const fleeEl = document.getElementById('scCombatResult');
-      fleeEl.innerHTML = `<div class="sc-result bad">Fuga — você perdeu 2 ENERGIA (${state.ene.cur}/${state.ene.ini}).</div>
-        <div class="sc-row" style="margin-top:4px;"><button class="sc-btn small" id="scFleeLuck" ${state.sor.cur<=0?'disabled':''}>Testar Sorte na fuga</button></div>`;
+      logCombat(`Você fugiu de ${m.name} — perdeu 2 ENE.`,'hit-monster');
+      document.getElementById('modalCombatResult').innerHTML = `<div class="sc-result bad">Fuga — você perdeu 2 ENE (${state.ene.cur}/${state.ene.ini}).</div>`;
       save(); renderAll(); renderShortcuts();
-      document.getElementById('scFleeLuck')?.addEventListener('click', ()=>{
-        const vals=[rollDie(),rollDie()]; const sum=vals[0]+vals[1];
-        const lucky = sum<=state.sor.cur;
-        state.sor.cur = clamp(state.sor.cur-1,0,state.sor.ini);
-        if(lucky){ state.ene.cur = clamp(state.ene.cur+1,0,state.ene.ini); }
-        else { state.ene.cur = clamp(state.ene.cur-1,0,state.ene.ini); }
-        logCombat(`Sorte na fuga (${sum}) ${lucky?'boa':'ruim'}.`, lucky?'neutral':'hit-monster');
-        fleeEl.innerHTML += `<div class="sc-result ${lucky?'good':'bad'}" style="margin-top:4px;">🎲 ${sum} — ${lucky?'Recuperou 1 ENE':'Perdeu 1 ENE extra'} (${state.ene.cur}/${state.ene.ini})</div>`;
-        save(); renderAll(); renderShortcuts();
-      });
     });
-    document.getElementById('scMonsterDmg')?.addEventListener('click', ()=>{
-      m.ene = clamp(m.ene-1, 0, m.eneIni);
-      logCombat(`${m.name} sofreu 1 ponto manual de ENERGIA.`, 'hit-you');
-      if(m.ene<=0){ m.dead=true; m.active=false; logCombat(`${m.name} foi derrotado!`,'victory');
-        const next = state.monsters.find(x=>!x.dead); if(next) next.active=true; }
+    document.getElementById('modalMDmg')?.addEventListener('click', ()=>{
+      m.ene = clamp(m.ene-1,0,m.eneIni);
+      logCombat(`${m.name} sofreu 1 ENE manual.`,'hit-you');
+      if(m.ene<=0){ m.dead=true; m.active=false; logCombat(`${m.name} derrotado!`,'victory');
+        const n = state.monsters.find(x=>!x.dead); if(n) n.active=true; }
       save(); renderAll(); renderShortcuts();
     });
   } else {
-    body.innerHTML = `
-      <div class="sc-add-monster">
-        <div class="sc-field"><label>Nome</label><input type="text" id="scMName" placeholder="Goblin"></div>
-        <div class="sc-field"><label>HAB</label><input type="number" id="scMHab" value="6" min="1"></div>
-        <div class="sc-field"><label>ENE</label><input type="number" id="scMEne" value="6" min="1"></div>
-        <button class="sc-btn primary" id="scAddMonster" style="padding:5px 4px;font-size:10px;">+</button>
-      </div>
-      ${m && m.dead ? '<div class="sc-result neutral" style="margin-top:4px;">Criatura derrotada. Registre uma nova acima.</div>' : '<div class="sc-empty">Nenhuma criatura em combate.</div>'}
-    `;
-    document.getElementById('scAddMonster')?.addEventListener('click', ()=>{
-      const name = document.getElementById('scMName').value.trim() || 'Criatura';
-      const hab = parseInt(document.getElementById('scMHab').value) || 6;
-      const ene = parseInt(document.getElementById('scMEne').value) || 6;
+    document.getElementById('modalAddMonster')?.addEventListener('click', ()=>{
+      const name = document.getElementById('modalMName').value.trim() || 'Criatura';
+      const hab = parseInt(document.getElementById('modalMHab').value) || 6;
+      const ene = parseInt(document.getElementById('modalMEne').value) || 6;
       const mon = { id:'m'+Date.now()+Math.random().toString(16).slice(2), name, habIni:hab, hab, eneIni:ene, ene, active:false, dead:false };
       if(state.monsters.every(x=>!x.active)) mon.active = true;
       state.monsters.push(mon);
       save(); renderMonsters(); renderCombatHead(); renderShortcuts();
+      document.getElementById('modalCombatResult').innerHTML = `<div class="sc-result good">${escapeHtml(name)} registrado!</div>`;
     });
   }
 }
 
-function scLuckDamage(m, dealtByYou){
+function scLuckDamageModal(m, dealtByYou){
   const vals = [rollDie(), rollDie()];
   const sum = vals[0]+vals[1];
   const lucky = sum <= state.sor.cur;
   state.sor.cur = clamp(state.sor.cur-1, 0, state.sor.ini);
-  if(dealtByYou){
-    const amount = lucky ? 4 : 1;
-    applyDamage(m, amount, false, false);
-    logCombat(`Sorte (${sum}) ${lucky?'boa':'ruim'} — ${m.name} sofreu ${amount} ENE.`, lucky?'hit-you':'neutral');
-  } else {
-    const amount = lucky ? 1 : 3;
-    applyDamage(m, amount, true, false);
-    logCombat(`Sorte (${sum}) ${lucky?'boa':'ruim'} — você sofreu ${amount} ENE.`, lucky?'neutral':'hit-monster');
-  }
-  const res = document.getElementById('scCombatResult');
-  if(res) res.innerHTML += `<div class="sc-result ${lucky?'good':'bad'}" style="margin-top:4px;">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Sorte boa!':'Sorte ruim.'}</div>`;
+  if(dealtByYou){ const amt = lucky?4:1; applyDamage(m,amt,false,false); logCombat(`Sorte (${sum}) ${lucky?'boa':'ruim'} — ${m.name} sofreu ${amt} ENE.`,lucky?'hit-you':'neutral'); }
+  else { const amt = lucky?1:3; applyDamage(m,amt,true,false); logCombat(`Sorte (${sum}) ${lucky?'boa':'ruim'} — você sofreu ${amt} ENE.`,lucky?'neutral':'hit-monster'); }
+  const el = document.getElementById('modalCombatResult');
+  if(el) el.innerHTML += `<div class="sc-result ${lucky?'good':'bad'}" style="margin-top:4px;">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Sorte boa!':'Sorte ruim.'}</div>`;
   save(); renderAll(); renderShortcuts();
 }
 
-function renderScMagic(){
-  const body = document.getElementById('scMagicBody');
-  if(!state.mag.ini){
-    body.innerHTML = '<div class="sc-empty">Role seus índices na Ficha primeiro.</div>';
-    return;
-  }
+function renderModalMagic(){
   const assigned = Object.entries(state.spellCharges).filter(([,c])=>c.total>0);
-  if(assigned.length===0){
-    body.innerHTML = '<div class="sc-empty">Nenhum encanto escolhido. Vá em Encantos Mágicos.</div>';
-    return;
+  if(!state.mag.ini){
+    openModal('🔮 Magias','<p class="sc-empty">Role seus índices na Ficha primeiro.</p>'); return;
   }
-  body.innerHTML = assigned.map(([id,c])=>{
+  if(assigned.length===0){
+    openModal('🔮 Magias','<p class="sc-empty">Nenhum encanto escolhido. Vá em Encantos Mágicos.</p>'); return;
+  }
+  const html = assigned.map(([id,c])=>{
     const sp = SPELLS.find(s=>s.id===id);
     return `<div class="sc-spell-item">
       <span class="sp-name">${sp?sp.name:id}</span>
       <span class="sp-uses">${c.left}/${c.total}</span>
-      <button class="sc-btn small primary" data-scuse="${id}" ${c.left<=0?'disabled':''}>Usar</button>
+      <button class="btn small primary" data-muse="${id}" ${c.left<=0?'disabled':''}>Usar</button>
     </div>`;
   }).join('');
-  body.querySelectorAll('[data-scuse]').forEach(b=>b.addEventListener('click', ()=>{
-    const id = b.dataset.scuse;
+  openModal('🔮 Magias', html);
+  document.querySelectorAll('#modalBody [data-muse]').forEach(b=>b.addEventListener('click', ()=>{
+    const id = b.dataset.muse;
     const sp = SPELLS.find(s=>s.id===id);
     const c = state.spellCharges[id];
     if(!c || c.left<=0) return;
@@ -1715,52 +1753,50 @@ function renderScMagic(){
       const attr = state[sp.recover];
       const bonus = Math.round(attr.ini/2);
       attr.cur = clamp(attr.cur + bonus, 0, attr.ini);
-      logCombat(`Encanto de ${sp.name} lançado — ${sp.recover.toUpperCase()} restaurada para ${attr.cur}/${attr.ini}.`, 'neutral', true);
+      logCombat(`Encanto de ${sp.name} lançado — ${sp.recover.toUpperCase()} restaurada.`, 'neutral', true);
     } else {
-      const name = sp ? sp.name : id;
-      logCombat(`Encanto de ${name} lançado.`, 'neutral', true);
+      logCombat(`Encanto de ${sp?sp.name:id} lançado.`, 'neutral', true);
     }
     save(); renderSpells(); renderFicha(); renderSideStats(); renderShortcuts();
+    renderModalMagic(); // re-render modal
   }));
 }
 
-function renderScInventory(){
-  const body = document.getElementById('scInvBody');
-  body.innerHTML = `
+function renderModalInventory(){
+  openModal('🎒 Inventário', `
     <div class="sc-row" style="justify-content:space-between;">
       <span class="sc-ouro">💰 ${state.ouro} ouro</span>
       <div class="sc-row" style="gap:2px;">
-        <button class="sc-btn small" id="scOuroMinus" style="min-width:24px;">−</button>
-        <button class="sc-btn small" id="scOuroPlus" style="min-width:24px;">+</button>
+        <button class="pill-btn" id="modalOuroMinus">−</button>
+        <button class="pill-btn" id="modalOuroPlus">+</button>
       </div>
     </div>
-    <div style="display:flex;gap:4px;">
-      <input type="text" id="scItemInput" placeholder="+ item" style="flex:1;all:unset;box-sizing:border-box;background:rgba(0,0,0,.25);border:1px solid var(--hairline);border-radius:4px;padding:4px 6px;color:var(--parch);font-family:'EB Garamond',serif;font-size:12px;">
-      <button class="sc-btn small primary" id="scItemAdd" style="flex:0;">Add</button>
+    <div style="display:flex;gap:4px;margin-top:8px;">
+      <input type="text" id="modalItemInput" placeholder="Adicionar item" style="flex:1;all:unset;box-sizing:border-box;background:rgba(0,0,0,.25);border:1px solid var(--hairline);border-radius:4px;padding:4px 6px;color:var(--parch);">
+      <button class="pill-btn" id="modalItemAdd">+</button>
     </div>
-    <div class="sc-inv-items" id="scItemList"></div>
-  `;
-  document.getElementById('scOuroMinus')?.addEventListener('click', ()=>{ state.ouro=Math.max(0,state.ouro-1); save(); renderEquip(); renderShortcuts(); });
-  document.getElementById('scOuroPlus')?.addEventListener('click', ()=>{ state.ouro++; save(); renderEquip(); renderShortcuts(); });
-  document.getElementById('scItemAdd')?.addEventListener('click', ()=>{
-    const inp = document.getElementById('scItemInput');
-    const v = inp.value.trim();
-    if(v){ state.itens.push(v); inp.value=''; save(); renderEquip(); renderShortcuts(); }
-  });
-  document.getElementById('scItemInput')?.addEventListener('keydown', (e)=>{ if(e.key==='Enter') document.getElementById('scItemAdd')?.click(); });
-  const itemList = document.getElementById('scItemList');
-  if(state.itens.length===0){
-    itemList.innerHTML = '<div class="sc-empty">Mochila vazia.</div>';
-  } else {
-    itemList.innerHTML = state.itens.slice(-10).map((it,i)=>{
-      const realIdx = state.itens.length - 10 + i;
-      return `<div class="sc-item"><span>${escapeHtml(it)}</span><button data-sridx="${realIdx < 0 ? i : realIdx}">×</button></div>`;
-    }).join('');
-    itemList.querySelectorAll('[data-sridx]').forEach(b=>b.addEventListener('click', ()=>{
-      state.itens.splice(parseInt(b.dataset.sridx),1);
-      save(); renderEquip(); renderShortcuts();
+    <div class="sc-inv-items" id="modalItemList"></div>
+  `);
+
+  const renderItems = () => {
+    const list = document.getElementById('modalItemList');
+    if(!list) return;
+    if(state.itens.length===0) list.innerHTML = '<div class="sc-empty">Mochila vazia.</div>';
+    else list.innerHTML = state.itens.map((it,i)=>`<div class="sc-item"><span>${escapeHtml(it)}</span><button data-idx="${i}">×</button></div>`).join('');
+    list.querySelectorAll('[data-idx]').forEach(b=>b.addEventListener('click', ()=>{
+      state.itens.splice(parseInt(b.dataset.idx),1); save(); renderEquip(); renderShortcuts(); renderItems();
     }));
-  }
+  };
+  renderItems();
+
+  document.getElementById('modalOuroMinus')?.addEventListener('click', ()=>{ state.ouro=Math.max(0,state.ouro-1); save(); renderEquip(); renderShortcuts(); renderModalInventory(); });
+  document.getElementById('modalOuroPlus')?.addEventListener('click', ()=>{ state.ouro++; save(); renderEquip(); renderShortcuts(); renderModalInventory(); });
+  document.getElementById('modalItemAdd')?.addEventListener('click', ()=>{
+    const inp = document.getElementById('modalItemInput');
+    const v = inp.value.trim();
+    if(v){ state.itens.push(v); inp.value=''; save(); renderEquip(); renderShortcuts(); renderItems(); }
+  });
+  document.getElementById('modalItemInput')?.addEventListener('keydown', e=>{ if(e.key==='Enter') document.getElementById('modalItemAdd')?.click(); });
 }
 
 // patch renderAll to also render shortcuts
