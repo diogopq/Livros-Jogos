@@ -1673,10 +1673,10 @@ function renderModalCombat(){
     <div class="grid cols-2" style="margin-bottom:12px;">
       <div class="card" style="padding:10px;">
         <h3 style="margin:0 0 8px;font-size:13px;">Adicionar criatura ao encontro</h3>
-        <div class="combat-grid">
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:10px;">
           <div class="cg-field"><span class="cg-label">Nome</span><input type="text" id="mMName" placeholder="Goblin"></div>
-          <div class="cg-field"><span class="cg-label">Habilidade</span><input type="number" id="mMHab" min="1" value="6"></div>
-          <div class="cg-field"><span class="cg-label">Energia</span><input type="number" id="mMEne" min="1" value="6"></div>
+          <div style="display:flex;gap:8px;"><div class="cg-field" style="flex:1;"><span class="cg-label">Habilidade</span><input type="number" id="mMHab" min="1" value="6"></div>
+          <div class="cg-field" style="flex:1;"><span class="cg-label">Energia</span><input type="number" id="mMEne" min="1" value="6"></div></div>
         </div>
         <button class="btn primary" id="mAddMonster">Registrar criatura</button>
       </div>
