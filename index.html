@@ -1191,8 +1191,13 @@ function luckDamage(m, dealtByYou){
     applyDamage(m, amount, true, false);
     logCombat(`Sorte (${sum}) ${lucky?'boa':'ruim'} — você sofreu ${amount} ponto(s) de ENERGIA.`, lucky?'neutral':'hit-monster');
   }
-  document.getElementById('combatOutcome').innerHTML += `<div class="luck-result ${lucky?'good':'bad'}" style="margin-top:10px;">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Você teve sorte!':'Você não teve sorte.'}</div>`;
+  const co = document.getElementById('combatOutcome') || document.getElementById('mCombatOutcome');
+  if(co) co.innerHTML += `<div class="luck-result ${lucky?'good':'bad'}" style="margin-top:10px;">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Você teve sorte!':'Você não teve sorte.'}</div>`;
   save(); renderFicha(); renderSideStats(); renderMonsters(); renderCombatHead();
+  if(document.getElementById('modalOverlay')?.classList.contains('open')){
+    renderModalCombatMonsterList();
+    updateActiveName();
+  }
 }
 
 function applyDamage(m, amount, toYou, logIt){
@@ -1615,104 +1620,238 @@ function renderModalLuck(){
   });
 }
 
+function updateActiveName(){
+  const el = document.getElementById('mActiveName');
+  if(!el) return;
+  const a = activeMonster();
+  const atk = document.getElementById('mAtkBtn');
+  const flee = document.getElementById('mFleeBtn');
+  if(a && !a.dead){
+    el.textContent = `${a.name} (HAB ${a.hab}/${a.habIni} · ENE ${a.ene}/${a.eneIni})`;
+    if(atk) atk.disabled = false;
+    if(flee) flee.disabled = false;
+  } else {
+    el.textContent = 'selecione uma criatura';
+    if(atk) atk.disabled = true;
+    if(flee) flee.disabled = true;
+  }
+}
+
 function renderModalCombat(){
   const m = activeMonster();
-  const monsterHtml = m && !m.dead 
-    ? `<div class="sc-monster">${escapeHtml(m.name)} — HAB <b>${m.hab}</b>/${m.habIni} · ENE <b>${m.ene}</b>/${m.eneIni}</div>
-       <div class="sc-row">
-         <button class="btn primary" id="modalAtkBtn">⚔ Atacar</button>
-         <button class="btn danger" id="modalFleeBtn">Fugir</button>
-         <button class="btn" id="modalMDmg" style="flex:0;">−1 ENE</button>
-       </div>
-       <div id="modalCombatResult"></div>
-       <hr class="divider">
-       <h3 style="margin:8px 0;font-size:13px;">Registro da batalha</h3>
-       <div class="log" id="modalCombatLog" style="max-height:200px;overflow-y:auto;"></div>`
-    : `<div class="sc-add-monster" style="display:grid;grid-template-columns:1fr 1fr 1fr 36px;gap:4px;align-items:end;">
-         <div class="sc-field"><label>Nome</label><input type="text" id="modalMName" placeholder="Goblin"></div>
-         <div class="sc-field"><label>HAB</label><input type="number" id="modalMHab" value="6" min="1"></div>
-         <div class="sc-field"><label>ENE</label><input type="number" id="modalMEne" value="6" min="1"></div>
-         <button class="pill-btn" id="modalAddMonster">+</button>
+  const diceHtml = `
+    <div class="dice-tray" style="margin-bottom:14px;">
+      <div class="dice" id="mDieYou1"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+      <div class="dice" id="mDieYou2"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+      <div class="dice-result"><div class="sum" id="mForceYou">&ndash;</div><div class="detail">sua For&ccedil;a de Ataque</div></div>
+      <div style="width:1px;align-self:stretch;background:var(--hairline);"></div>
+      <div class="dice" id="mDieMon1"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+      <div class="dice" id="mDieMon2"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+      <div class="dice-result"><div class="sum" id="mForceMon">&ndash;</div><div class="detail">For&ccedil;a da criatura</div></div>
+    </div>`;
+
+  const monsterListHtml = state.monsters.length===0
+    ? '<div class="sc-empty">Nenhuma criatura registrada ainda.</div>'
+    : state.monsters.map(m=>`
+      <div class="monster-card ${m.active?'active':''} ${m.dead?'dead':''}" style="margin-bottom:6px;">
+        <div class="monster-head">
+          <div class="mname">${escapeHtml(m.name)} ${m.dead?'<span class="tag">derrotado</span>':''}</div>
+          <div class="row">
+            ${!m.dead?`<button class="btn small" data-m-sel="${m.id}">${m.active?'Em combate':'Selecionar'}</button>`:''}
+            <button class="btn small danger" data-m-del="${m.id}">remover</button>
+          </div>
         </div>
-        <div id="modalCombatResult"></div>
-        ${m && m.dead ? '<div class="sc-result neutral" style="margin-top:4px;">Criatura derrotada.</div>' : '<div class="sc-empty" style="margin-top:4px;">Nenhuma criatura em combate.</div>'}
-        <hr class="divider">
-       <h3 style="margin:8px 0;font-size:13px;">Registro da batalha</h3>
-       <div class="log" id="modalCombatLog" style="max-height:200px;overflow-y:auto;"></div>`;
+        <div class="monster-vitals">
+          <span>HABILIDADE: <b>${m.hab}</b> / ${m.habIni}</span>
+          <span>ENERGIA: <b>${m.ene}</b> / ${m.eneIni}</span>
+        </div>
+      </div>
+    `).join('');
 
-  openModal('⚔ Batalha', monsterHtml);
+  const content = `
+    <div class="grid cols-2" style="margin-bottom:12px;">
+      <div class="card" style="padding:10px;">
+        <h3 style="margin:0 0 8px;font-size:13px;">Adicionar criatura ao encontro</h3>
+        <div class="combat-grid">
+          <div class="cg-field"><span class="cg-label">Nome</span><input type="text" id="mMName" placeholder="Goblin"></div>
+          <div class="cg-field"><span class="cg-label">Habilidade</span><input type="number" id="mMHab" min="1" value="6"></div>
+          <div class="cg-field"><span class="cg-label">Energia</span><input type="number" id="mMEne" min="1" value="6"></div>
+        </div>
+        <button class="btn primary" id="mAddMonster">Registrar criatura</button>
+      </div>
+      <div class="card" style="padding:10px;">
+        <h3 style="margin:0 0 8px;font-size:13px;">Fuga</h3>
+        <button class="btn danger" id="mFleeBtn" ${m && !m.dead?'':'disabled'}>Fugir da batalha</button>
+        <div id="mFleeResult"></div>
+      </div>
+    </div>
+    <div class="card" style="padding:10px;margin-bottom:12px;">
+      <h3 style="margin:0 0 8px;font-size:13px;">Criaturas do encontro</h3>
+      <div id="mMonsterList">${monsterListHtml}</div>
+    </div>
+    <div class="card" style="padding:10px;">
+      <h3 style="margin:0 0 8px;font-size:13px;">S&eacute;rie de Ataque &mdash; <span id="mActiveName" style="color:var(--parch-dim);font-family:'EB Garamond',serif;">${m && !m.dead?escapeHtml(m.name)+' (HAB '+m.hab+'/'+m.habIni+' &middot; ENE '+m.ene+'/'+m.eneIni+')':'selecione uma criatura'}</span></h3>
+      ${diceHtml}
+      <div class="row">
+        <button class="btn primary" id="mAtkBtn" ${m && !m.dead?'':'disabled'}>&#127922; Jogar s&eacute;rie de ataque</button>
+      </div>
+      <div id="mCombatOutcome"></div>
+      <hr class="divider">
+      <h3 style="margin-bottom:8px;">Registro da batalha</h3>
+      <div class="log" id="mCombatLog" style="max-height:200px;overflow-y:auto;"></div>
+    </div>`;
 
-  // Re-populate combat log
-  const logEl = document.getElementById('modalCombatLog');
+  openModal('⚔ Batalha', content);
+
+  // populate combat log
+  const logEl = document.getElementById('mCombatLog');
   if(logEl){
     [...state.log].reverse().forEach(e=>{
       const d = document.createElement('div'); d.className='entry '+(e.cls||''); d.textContent=e.text; logEl.prepend(d);
     });
   }
 
-  if(m && !m.dead){
-    document.getElementById('modalAtkBtn')?.addEventListener('click', ()=>{
-      if(combatBusy) return;
-      if(!state.hab.ini){ alert('Role seus índices primeiro.'); return; }
-      combatBusy = true;
-      const yV = [rollDie(),rollDie()], mV = [rollDie(),rollDie()];
-      const fY = yV[0]+yV[1]+state.hab.cur, fM = mV[0]+mV[1]+m.hab;
-      let html = `<div class="sc-result neutral">Você ${yV[0]}+${yV[1]}+${state.hab.cur}=${fY} · ${escapeHtml(m.name)} ${mV[0]}+${mV[1]}+${m.hab}=${fM}</div>`;
-      const res = document.getElementById('modalCombatResult');
-      if(fY===fM){
-        logCombat(`Empate (${fY}x${fM}) — ambos se defenderam.`, 'neutral');
-        html += `<div class="sc-result neutral" style="margin-top:4px;">Empate. Ataque novamente.</div>`;
-        res.innerHTML = html; combatBusy = false;
-      } else if(fY>fM){
-        const v = ['acertou em cheio','atingiu com um golpe brutal','cravou a espada','desferiu um golpe preciso','acertou com violência','feriu profundamente'][Math.floor(Math.random()*6)];
-        logCombat(`⚔ ${v} ${m.name} (${fY}x${fM}).`,'hit-you');
-        applyDamage(m,2,false,true);
-        html += `<div class="sc-result good" style="margin-top:4px;">${escapeHtml(m.name)} perdeu 2 ENE (${m.ene}/${m.eneIni}).</div>`;
-        if(state.sor.cur>0){
-          html += `<div class="sc-row" style="margin-top:4px;"><button class="btn small" id="modalDLuck">Testar Sorte (+dano)</button></div>`;
-          res.innerHTML = html;
-          document.getElementById('modalDLuck')?.addEventListener('click', ()=>{ scLuckDamageModal(m,true); combatBusy=false; });
-        } else { res.innerHTML = html; }
-        combatBusy = false;
-      } else {
-        const v = ['acertou você com um golpe brutal','atingiu você com sua arma','feriu você profundamente','acertou em cheio','cravou as garras em você','desferiu um golpe terrível'][Math.floor(Math.random()*6)];
-        logCombat(`⚔ ${m.name} ${v} (${fM}x${fY}).`,'hit-monster');
-        applyDamage(m,2,true,true);
-        html += `<div class="sc-result bad" style="margin-top:4px;">Você perdeu 2 ENE (${state.ene.cur}/${state.ene.ini}).</div>`;
-        if(state.sor.cur>0){
-          html += `<div class="sc-row" style="margin-top:4px;"><button class="btn small" id="modalDLuckYou">Testar Sorte (−dano)</button></div>`;
-          res.innerHTML = html;
-          document.getElementById('modalDLuckYou')?.addEventListener('click', ()=>{ scLuckDamageModal(m,false); combatBusy=false; });
-        } else { res.innerHTML = html; }
-        combatBusy = false;
-      }
-      save(); renderFicha(); renderSideStats(); renderMonsters(); renderCombatHead(); renderShortcuts();
-    });
-    document.getElementById('modalFleeBtn')?.addEventListener('click', ()=>{
-      applyDamage(m,2,true,false);
-      logCombat(`Você fugiu de ${m.name} — perdeu 2 ENE.`,'hit-monster');
-      document.getElementById('modalCombatResult').innerHTML = `<div class="sc-result bad">Fuga — você perdeu 2 ENE (${state.ene.cur}/${state.ene.ini}).</div>`;
-      save(); renderAll(); renderShortcuts();
-    });
-    document.getElementById('modalMDmg')?.addEventListener('click', ()=>{
-      m.ene = clamp(m.ene-1,0,m.eneIni);
-      logCombat(`${m.name} sofreu 1 ENE manual.`,'hit-you');
-      if(m.ene<=0){ m.dead=true; m.active=false; logCombat(`${m.name} derrotado!`,'victory');
-        const n = state.monsters.find(x=>!x.dead); if(n) n.active=true; }
-      save(); renderAll(); renderShortcuts();
-    });
-  } else {
-    document.getElementById('modalAddMonster')?.addEventListener('click', ()=>{
-      const name = document.getElementById('modalMName').value.trim() || 'Criatura';
-      const hab = parseInt(document.getElementById('modalMHab').value) || 6;
-      const ene = parseInt(document.getElementById('modalMEne').value) || 6;
-      const mon = { id:'m'+Date.now()+Math.random().toString(16).slice(2), name, habIni:hab, hab, eneIni:ene, ene, active:false, dead:false };
-      if(state.monsters.every(x=>!x.active)) mon.active = true;
-      state.monsters.push(mon);
+  updateActiveName();
+
+  // monster list events
+  const mList = document.getElementById('mMonsterList');
+  mList?.addEventListener('click', e=>{
+    const sel = e.target.closest('[data-m-sel]');
+    const del = e.target.closest('[data-m-del]');
+    if(sel){
+      state.monsters.forEach(x=>x.active = (x.id===sel.dataset.mSel));
       save(); renderMonsters(); renderCombatHead(); renderShortcuts();
-      renderModalCombat();
+      updateActiveName();
+      renderModalCombatMonsterList();
+    }
+    if(del){
+      state.monsters = state.monsters.filter(x=>x.id!==del.dataset.mDel);
+      save(); renderMonsters(); renderCombatHead(); renderShortcuts();
+      updateActiveName();
+      renderModalCombatMonsterList();
+    }
+  });
+
+  // add monster
+  document.getElementById('mAddMonster')?.addEventListener('click', ()=>{
+    const name = document.getElementById('mMName').value.trim() || 'Criatura';
+    const hab = parseInt(document.getElementById('mMHab').value) || 6;
+    const ene = parseInt(document.getElementById('mMEne').value) || 6;
+    const mon = { id:'m'+Date.now()+Math.random().toString(16).slice(2), name, habIni:hab, hab, eneIni:ene, ene, active:false, dead:false };
+    if(state.monsters.every(x=>!x.active)) mon.active = true;
+    state.monsters.push(mon);
+    save(); renderMonsters(); renderCombatHead(); renderShortcuts();
+    document.getElementById('mMName').value='';
+    updateActiveName();
+    renderModalCombatMonsterList();
+  });
+
+  // attack round
+  document.getElementById('mAtkBtn')?.addEventListener('click', ()=>{
+    if(combatBusy) return;
+    const m = activeMonster();
+    if(!m || m.dead) return;
+    if(!state.hab.ini){ alert('Role seus índices iniciais primeiro.'); return; }
+    combatBusy = true;
+
+    const yEls = [document.getElementById('mDieYou1'), document.getElementById('mDieYou2')];
+    const mEls = [document.getElementById('mDieMon1'), document.getElementById('mDieMon2')];
+    const yVals = rollDice(2, yEls);
+    const mVals = rollDice(2, mEls);
+    const forceYou = yVals[0]+yVals[1] + state.hab.cur;
+    const forceMon = mVals[0]+mVals[1] + m.hab;
+    document.getElementById('mForceYou').textContent = forceYou;
+    document.getElementById('mForceMon').textContent = forceMon;
+
+    const outcome = document.getElementById('mCombatOutcome');
+    let html = `<div class="footnote">Voc&ecirc;: ${yVals[0]}+${yVals[1]}+${state.hab.cur} = <b style="color:var(--parch)">${forceYou}</b> &nbsp;|&nbsp; ${escapeHtml(m.name)}: ${mVals[0]}+${mVals[1]}+${m.hab} = <b style="color:var(--parch)">${forceMon}</b></div>`;
+
+    if(forceYou === forceMon){
+      logCombat(`Empate (${forceYou} x ${forceMon}) — ambos se defenderam. Jogue novamente.`, 'neutral');
+      html += `<div class="luck-result" style="margin-top:10px;border-color:var(--gold);">For&ccedil;as iguais — voc&ecirc;s se defenderam dos golpes. Jogue a s&eacute;rie novamente.</div>`;
+      outcome.innerHTML = html;
+      combatBusy = false;
+    } else if(forceYou > forceMon){
+      const atkNames = ['acertou em cheio', 'atingiu com um golpe brutal', 'cravou a espada', 'desferiu um golpe preciso', 'acertou com viol&ecirc;ncia', 'feriu profundamente'];
+      const verb = atkNames[Math.floor(Math.random()*atkNames.length)];
+      logCombat(`⚔ ${verb} ${m.name} (${forceYou} x ${forceMon}).`, 'hit-you');
+      applyDamage(m, 2, false, true);
+      html += `<div class="luck-result good" style="margin-top:10px;">${escapeHtml(m.name)} perdeu 2 ENERGIA (${m.ene}/${m.eneIni}).</div>`;
+      if(state.sor.cur>0){
+        html += `<div class="row" style="margin-top:6px;"><button class="btn small" id="mDmgLuck" ${state.sor.cur<=0?'disabled':''}>Testar a Sorte para causar mais dano</button></div>`;
+      }
+      outcome.innerHTML = html;
+      if(state.sor.cur>0){
+        document.getElementById('mDmgLuck')?.addEventListener('click', ()=>{ luckDamage(m, true); combatBusy=false; });
+      }
+      combatBusy = false;
+    } else {
+      const atkNames = ['acertou voc&ecirc; com um golpe brutal', 'atingiu voc&ecirc; com sua arma', 'feriu voc&ecirc; profundamente', 'acertou em cheio', 'cravou as garras em voc&ecirc;', 'desferiu um golpe terr&iacute;vel'];
+      const verb = atkNames[Math.floor(Math.random()*atkNames.length)];
+      logCombat(`⚔ ${m.name} ${verb} (${forceMon} x ${forceYou}).`, 'hit-monster');
+      applyDamage(m, 2, true, true);
+      html += `<div class="luck-result bad" style="margin-top:10px;">Voc&ecirc; perdeu 2 ENERGIA (${state.ene.cur}/${state.ene.ini}).</div>`;
+      if(state.sor.cur>0){
+        html += `<div class="row" style="margin-top:6px;"><button class="btn small" id="mDmgLuckYou" ${state.sor.cur<=0?'disabled':''}>Testar a Sorte para reduzir dano</button></div>`;
+      }
+      outcome.innerHTML = html;
+      if(state.sor.cur>0){
+        document.getElementById('mDmgLuckYou')?.addEventListener('click', ()=>{ luckDamage(m, false); combatBusy=false; });
+      }
+      combatBusy = false;
+    }
+    save(); renderFicha(); renderSideStats(); renderMonsters(); renderCombatHead(); renderShortcuts();
+    updateActiveName();
+    renderModalCombatMonsterList();
+  });
+
+  // flee
+  document.getElementById('mFleeBtn')?.addEventListener('click', ()=>{
+    const m = activeMonster();
+    if(!m){ alert('Nenhuma criatura ativa para fugir.'); return; }
+    applyDamage(m, 2, true, false);
+    logCombat(`Você fugiu de ${m.name} e sofreu 2 pontos de ENERGIA na fuga.`, 'hit-monster');
+    document.getElementById('mFleeResult').innerHTML = `<div class="footnote" style="margin-top:10px;">Voc&ecirc; pode testar a Sorte abaixo para tentar reduzir este ferimento.</div>
+      <div class="row" style="margin-top:8px;"><button class="btn small" id="mFleeLuck" ${state.sor.cur<=0?'disabled':''}>Testar a Sorte</button></div>`;
+    save(); renderFicha(); renderSideStats(); renderMonsters(); renderCombatHead(); renderShortcuts();
+    updateActiveName();
+    document.getElementById('mFleeLuck')?.addEventListener('click', ()=>{
+      const vals=[rollDie(),rollDie()]; const sum=vals[0]+vals[1];
+      const lucky = sum<=state.sor.cur;
+      state.sor.cur = clamp(state.sor.cur-1,0,state.sor.ini);
+      if(lucky){ state.ene.cur = clamp(state.ene.cur+1,0,state.ene.ini); }
+      const msg = lucky?'Sorte boa — recuperou 1 ENERGIA.':'Sorte ruim — sem recuperação.';
+      logCombat(`Fuga — Sorte (${sum}) ${lucky?'boa':'ruim'}. ${msg}`,'neutral');
+      save(); renderAll(); renderShortcuts();
+      document.getElementById('mFleeResult').innerHTML += `<div class="luck-result ${lucky?'good':'bad'}" style="margin-top:8px;">🎲 ${vals[0]}+${vals[1]}=${sum} — ${msg}</div>`;
+      updateActiveName();
     });
+  });
+}
+
+function renderModalCombatMonsterList(){
+  const list = document.getElementById('mMonsterList');
+  if(!list) return;
+  if(state.monsters.length===0){
+    list.innerHTML = '<div class="sc-empty">Nenhuma criatura registrada ainda.</div>';
+  } else {
+    list.innerHTML = state.monsters.map(m=>`
+      <div class="monster-card ${m.active?'active':''} ${m.dead?'dead':''}" style="margin-bottom:6px;">
+        <div class="monster-head">
+          <div class="mname">${escapeHtml(m.name)} ${m.dead?'<span class="tag">derrotado</span>':''}</div>
+          <div class="row">
+            ${!m.dead?`<button class="btn small" data-m-sel="${m.id}">${m.active?'Em combate':'Selecionar'}</button>`:''}
+            <button class="btn small danger" data-m-del="${m.id}">remover</button>
+          </div>
+        </div>
+        <div class="monster-vitals">
+          <span>HABILIDADE: <b>${m.hab}</b> / ${m.habIni}</span>
+          <span>ENERGIA: <b>${m.ene}</b> / ${m.eneIni}</span>
+        </div>
+      </div>
+    `).join('');
   }
+  // re-attach events via delegation on mMonsterList (already set up)
 }
 
 function scLuckDamageModal(m, dealtByYou){
