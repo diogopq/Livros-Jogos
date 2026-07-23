@@ -443,6 +443,7 @@ label.field{ display:flex; flex-direction:column; gap:5px; font-size:12px; color
 .sc-empty{ color:var(--parch-dim); font-style:italic; font-size:11px; }
 .sc-stats{ display:flex; flex-direction:column; gap:6px; }
 .sc-actions{ display:grid; grid-template-columns:1fr 1fr; gap:6px; }
+.sc-actions .sc-modal-btn:last-child:nth-child(odd){ grid-column:1 / -1; }
 .sc-modal-btn{
   all:unset; cursor:pointer; text-align:center;
   font-family:'Cinzel',serif; font-size:11px; letter-spacing:.02em;
@@ -1198,6 +1199,7 @@ document.getElementById('addMonsterBtn').addEventListener('click', ()=>{
 });
 
 let combatBusy = false;
+let pendingLuckDamage = null; // {m, dealtByYou} — surfaces the luck-test button in the right-side panel too
 document.getElementById('attackRoundBtn').addEventListener('click', ()=>{
   if(combatBusy) return;
   const m = activeMonster();
@@ -1222,6 +1224,8 @@ document.getElementById('attackRoundBtn').addEventListener('click', ()=>{
     html += `<div class="luck-result" style="margin-top:10px;border-color:var(--gold);">Forças iguais — vocês se defenderam dos golpes. Jogue a série novamente.</div>`;
     outcome.innerHTML = html;
     combatBusy = false;
+    pendingLuckDamage = null;
+    renderShortcuts();
   } else if(forceYou > forceMon){
     const atkNames = ['acertou em cheio', 'atingiu com um golpe brutal', 'cravou a espada', 'desferiu um golpe preciso', 'acertou com violência', 'feriu profundamente'];
     const verb = atkNames[Math.floor(Math.random()*atkNames.length)];
@@ -1230,12 +1234,16 @@ document.getElementById('attackRoundBtn').addEventListener('click', ()=>{
     html += `<div class="luck-result good" style="margin-top:10px;">${m.name} perdeu 2 ENERGIA (${m.ene}/${m.eneIni}).</div>`;
     if(state.sor.cur>0){
       html += `<div class="row" style="margin-top:6px;"><button class="btn small" id="dmgLuck" ${state.sor.cur<=0?'disabled':''}>Testar a Sorte para causar mais dano</button></div>`;
+      pendingLuckDamage = {m, dealtByYou:true}; scCombatLuckResultHtml = '';
+    } else {
+      pendingLuckDamage = null;
     }
     outcome.innerHTML = html;
     if(state.sor.cur>0){
       document.getElementById('dmgLuck')?.addEventListener('click', ()=>{ luckDamage(m, true); combatBusy=false; });
     }
     combatBusy = false;
+    renderShortcuts();
   } else {
     const atkNames = ['acertou você com um golpe brutal', 'atingiu você com sua arma', 'feriu você profundamente', 'acertou em cheio', 'cravou as garras em você', 'desferiu um golpe terrível'];
     const verb = atkNames[Math.floor(Math.random()*atkNames.length)];
@@ -1244,12 +1252,16 @@ document.getElementById('attackRoundBtn').addEventListener('click', ()=>{
     html += `<div class="luck-result bad" style="margin-top:10px;">Você perdeu 2 ENERGIA (${state.ene.cur}/${state.ene.ini}).</div>`;
     if(state.sor.cur>0){
       html += `<div class="row" style="margin-top:6px;"><button class="btn small" id="dmgLuckYou" ${state.sor.cur<=0?'disabled':''}>Testar a Sorte para reduzir dano</button></div>`;
+      pendingLuckDamage = {m, dealtByYou:false}; scCombatLuckResultHtml = '';
+    } else {
+      pendingLuckDamage = null;
     }
     outcome.innerHTML = html;
     if(state.sor.cur>0){
       document.getElementById('dmgLuckYou')?.addEventListener('click', ()=>{ luckDamage(m, false); combatBusy=false; });
     }
     combatBusy = false;
+    renderShortcuts();
   }
   save(); renderFicha(); renderSideStats(); renderMonsters(); renderCombatHead();
 });
@@ -1269,8 +1281,11 @@ function luckDamage(m, dealtByYou){
     logCombat(`Sorte (${sum}) ${lucky?'boa':'ruim'} — você sofreu ${amount} ponto(s) de ENERGIA.`, lucky?'neutral':'hit-monster');
   }
   const co = document.getElementById('combatOutcome') || document.getElementById('mCombatOutcome');
-  if(co) co.innerHTML += `<div class="luck-result ${lucky?'good':'bad'}" style="margin-top:10px;">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Você teve sorte!':'Você não teve sorte.'}</div>`;
-  save(); renderFicha(); renderSideStats(); renderMonsters(); renderCombatHead();
+  const resultHtml = `<div class="luck-result ${lucky?'good':'bad'}" style="margin-top:10px;">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Você teve sorte!':'Você não teve sorte.'}</div>`;
+  if(co) co.innerHTML += resultHtml;
+  scCombatLuckResultHtml = resultHtml;
+  pendingLuckDamage = null;
+  save(); renderFicha(); renderSideStats(); renderMonsters(); renderCombatHead(); renderShortcuts();
   if(document.getElementById('modalOverlay')?.classList.contains('open')){
     renderModalCombatMonsterList();
     updateActiveName();
@@ -1651,6 +1666,8 @@ function renderStory(){
 
 
 /* ============================ SHORTCUT PANEL ============================ */
+let scLuckResultHtml = '';
+let scCombatLuckResultHtml = '';
 function renderShortcuts(){
   const panel = document.getElementById('shortcutPanel');
   if(!panel.classList.contains('open')) return;
@@ -1662,6 +1679,7 @@ function renderShortcuts(){
       <button class="pill-btn" data-adj="${key}" data-d="1" ${ini==null||ini===0?'disabled':''}>+</button></div>`;
   };
   const sor = state.sor;
+  const canTest = sor.ini && sor.cur>0;
   const btn = (emoji, label, modalId) =>
     `<button class="sc-modal-btn" data-modal="${modalId}"><span class="sc-modal-emoji">${emoji}</span> ${label}</button>`;
   panel.innerHTML = `
@@ -1674,8 +1692,23 @@ function renderShortcuts(){
         <div class="sc-stat-row"><span>MAGIA</span><span class="sc-stat-val">${spellsLeft()} / ${state.mag.ini ?? '-'}</span></div>
       </div>
     </div>
+    ${pendingLuckDamage ? `
+    <div class="shortcut-card">
+      <h4>🎲 Sorte no combate</h4>
+      <p style="margin:0;font-size:11.5px;color:var(--parch-dim);">${pendingLuckDamage.dealtByYou ? `${escapeHtml(pendingLuckDamage.m.name)} foi ferido — teste a sorte para causar mais dano.` : 'Você foi ferido — teste a sorte para reduzir o dano.'}</p>
+      <button class="sc-row-btn btn small primary" id="scCombatLuckBtn" ${state.sor.cur<=0?'disabled':''} style="width:100%;margin-top:6px;">🎲 ${pendingLuckDamage.dealtByYou ? 'Causar mais dano' : 'Reduzir dano'}</button>
+    </div>` : (scCombatLuckResultHtml ? `
+    <div class="shortcut-card">
+      <h4>🎲 Sorte no combate</h4>
+      <div id="scCombatLuckResult">${scCombatLuckResultHtml}</div>
+    </div>` : '')}
+    <div class="shortcut-card">
+      <h4>🎲 Testar a Sorte</h4>
+      <p style="margin:0;font-size:11.5px;color:var(--parch-dim);">Sorte atual: <b style="color:var(--parch)">${sor.cur??'-'}</b> / ${sor.ini??'-'}</p>
+      <button class="sc-row-btn btn small primary" id="scLuckBtn" ${canTest?'':'disabled'} style="width:100%;">🎲 Testar a Sorte</button>
+      <div id="scLuckResult">${scLuckResultHtml}</div>
+    </div>
     <div class="sc-actions">
-      ${btn('🎲','Testar a Sorte','luck')}
       ${btn('⚔','Batalha','combat')}
       ${btn('🔮','Magias','magic')}
       ${btn('🎒','Inventário','inventory')}
@@ -1684,11 +1717,26 @@ function renderShortcuts(){
 
   panel.querySelectorAll('.sc-modal-btn').forEach(b=>b.addEventListener('click', ()=>{
     const modal = b.dataset.modal;
-    if(modal==='luck') renderModalLuck();
-    else if(modal==='combat') renderModalCombat();
+    if(modal==='combat') renderModalCombat();
     else if(modal==='magic') renderModalMagic();
     else if(modal==='inventory') renderModalInventory();
   }));
+
+  document.getElementById('scCombatLuckBtn')?.addEventListener('click', ()=>{
+    if(!pendingLuckDamage || state.sor.cur<=0) return;
+    luckDamage(pendingLuckDamage.m, pendingLuckDamage.dealtByYou);
+  });
+
+  document.getElementById('scLuckBtn')?.addEventListener('click', ()=>{
+    if(!sor.ini || sor.cur<=0) return;
+    const vals = [rollDie(), rollDie()];
+    const sum = vals[0]+vals[1];
+    const lucky = sum <= sor.cur;
+    sor.cur = clamp(sor.cur - 1, 0, sor.ini);
+    save(); renderFicha(); renderSideStats();
+    scLuckResultHtml = `<div class="sc-result ${lucky?'good':'bad'}">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Você TEVE sorte!':'Você NÃO teve sorte.'} <span style="opacity:.6">(${sor.cur}/${sor.ini})</span></div>`;
+    renderShortcuts();
+  });
 }
 
 function openModal(title, html){
@@ -1702,24 +1750,6 @@ document.getElementById('modalOverlay').addEventListener('click', e=>{
   if(e.target===e.currentTarget) document.getElementById('modalOverlay').classList.remove('open');
 });
 
-function renderModalLuck(){
-  const sor = state.sor;
-  const canTest = sor.ini && sor.cur>0;
-  openModal('🎲 Testar a Sorte', `
-    <p style="color:var(--parch-dim);margin:0 0 8px;">Sorte atual: <b style="color:var(--parch)">${sor.cur??'-'}</b> / ${sor.ini??'-'}</p>
-    <button class="btn primary" id="modalLuckBtn" ${canTest?'':'disabled'}>🎲 Testar a Sorte</button>
-    <div id="modalLuckResult" style="margin-top:8px;"></div>
-  `);
-  document.getElementById('modalLuckBtn')?.addEventListener('click', ()=>{
-    if(!sor.ini || sor.cur<=0) return;
-    const vals = [rollDie(), rollDie()];
-    const sum = vals[0]+vals[1];
-    const lucky = sum <= sor.cur;
-    sor.cur = clamp(sor.cur - 1, 0, sor.ini);
-    save(); renderFicha(); renderSideStats(); renderShortcuts();
-    document.getElementById('modalLuckResult').innerHTML = `<div class="sc-result ${lucky?'good':'bad'}">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Você TEVE sorte!':'Você NÃO teve sorte.'} <span style="opacity:.6">(${sor.cur}/${sor.ini})</span></div>`;
-  });
-}
 
 function updateActiveName(){
   const el = document.getElementById('mActiveName');
@@ -1872,6 +1902,7 @@ function renderModalCombat(){
       html += `<div class="luck-result" style="margin-top:10px;border-color:var(--gold);">For&ccedil;as iguais — voc&ecirc;s se defenderam dos golpes. Jogue a s&eacute;rie novamente.</div>`;
       outcome.innerHTML = html;
       combatBusy = false;
+      pendingLuckDamage = null;
     } else if(forceYou > forceMon){
       const atkNames = ['acertou em cheio', 'atingiu com um golpe brutal', 'cravou a espada', 'desferiu um golpe preciso', 'acertou com viol&ecirc;ncia', 'feriu profundamente'];
       const verb = atkNames[Math.floor(Math.random()*atkNames.length)];
@@ -1880,6 +1911,9 @@ function renderModalCombat(){
       html += `<div class="luck-result good" style="margin-top:10px;">${escapeHtml(m.name)} perdeu 2 ENERGIA (${m.ene}/${m.eneIni}).</div>`;
       if(state.sor.cur>0){
         html += `<div class="row" style="margin-top:6px;"><button class="btn small" id="mDmgLuck" ${state.sor.cur<=0?'disabled':''}>Testar a Sorte para causar mais dano</button></div>`;
+        pendingLuckDamage = {m, dealtByYou:true}; scCombatLuckResultHtml = '';
+      } else {
+        pendingLuckDamage = null;
       }
       outcome.innerHTML = html;
       if(state.sor.cur>0){
@@ -1894,6 +1928,9 @@ function renderModalCombat(){
       html += `<div class="luck-result bad" style="margin-top:10px;">Voc&ecirc; perdeu 2 ENERGIA (${state.ene.cur}/${state.ene.ini}).</div>`;
       if(state.sor.cur>0){
         html += `<div class="row" style="margin-top:6px;"><button class="btn small" id="mDmgLuckYou" ${state.sor.cur<=0?'disabled':''}>Testar a Sorte para reduzir dano</button></div>`;
+        pendingLuckDamage = {m, dealtByYou:false}; scCombatLuckResultHtml = '';
+      } else {
+        pendingLuckDamage = null;
       }
       outcome.innerHTML = html;
       if(state.sor.cur>0){
