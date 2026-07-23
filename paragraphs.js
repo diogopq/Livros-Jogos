@@ -625,7 +625,7 @@ pára chamar o guarda. Vá para 118.`,
   95: `No lado mais distante da Adega de Vinhos, há uma porta de madeira, que você experimenta. Ela
 abre para uma passagem que conduz adiante por vários metros. Vá para 367.`, 
   96: `Eles aceitam a sua oferta e convocam o porteiro, que abre uma pequena porta dentro da porta
-levadiça para deixar você entrar. Você os deixa discutindo por causa da pepita de ouro. Vá para`, 
+levadiça para deixar você entrar. Você os deixa discutindo por causa da pepita de ouro. Vá para 251.`, 
   97: `O pão está bastante seco e sem gosto. Na verdade, está muito seco - tão seco que logo você está
 desesperado por alguma coisa para beber! Sua boca está ressequida e você procura freneticamente
 entre os alimentos do aposento algum líquido. Mas não há nada para aplacar a sua sede. Você tem
