@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cidadela do Caos — Companheiro de Aventura</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='32' cy='32' r='30' fill='%23211c17' stroke='%23b8912f' stroke-width='2'/%3E%3Cpath d='M32 12 L38 26 L52 28 L41 38 L44 52 L32 45 L20 52 L23 38 L12 28 L26 26 Z' fill='%23d9b45c'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cinzel+Decorative:wght@700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 <script src="paragraphs.js"></script>
@@ -43,6 +44,7 @@ Você deixa o Vale dos Salgueiros na longa caminhada para a Torre Negra. No sop�
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
 body{
+  position:relative;
   background:
     radial-gradient(ellipse at top left, #241f18 0%, transparent 55%),
     radial-gradient(ellipse at bottom right, #1a1512 0%, transparent 55%),
@@ -51,6 +53,46 @@ body{
   font-family:'EB Garamond', serif;
   min-height:100vh;
   -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+/* ambient ember glow — two slow-breathing torch pools, purely decorative */
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    radial-gradient(340px 340px at 6% 12%, rgba(184,145,47,.10), transparent 70%),
+    radial-gradient(420px 420px at 96% 88%, rgba(143,50,38,.09), transparent 70%);
+  animation:emberBreathe 9s ease-in-out infinite alternate;
+  mix-blend-mode:screen;
+}
+@keyframes emberBreathe{
+  0%{ opacity:.55; }
+  100%{ opacity:1; }
+}
+.app{ position:relative; z-index:1; }
+
+/* subtle film-grain texture for the parchment feel */
+body::after{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* full-screen damage flash overlay */
+#damageFlash{ position:fixed; inset:0; z-index:200; pointer-events:none; opacity:0; }
+#damageFlash.flash-you{ background:radial-gradient(circle, transparent 40%, rgba(143,50,38,.35) 100%); animation:flashPulse .55s ease-out; }
+#damageFlash.flash-monster{ background:radial-gradient(circle, transparent 45%, rgba(184,145,47,.22) 100%); animation:flashPulse .5s ease-out; }
+@keyframes flashPulse{ 0%{ opacity:1; } 100%{ opacity:0; } }
+.app.shake{ animation:screenShake .4s ease; }
+@keyframes screenShake{
+  0%,100%{ transform:translate(0,0); }
+  20%{ transform:translate(-4px,2px); }
+  40%{ transform:translate(4px,-2px); }
+  60%{ transform:translate(-3px,-1px); }
+  80%{ transform:translate(3px,1px); }
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important; }
+  body::before{ animation:none; opacity:.7; }
 }
 ::selection{ background:var(--gold); color:var(--parch-ink); }
 h1,h2,h3,.display{ font-family:'Cinzel', serif; letter-spacing:.02em; }
@@ -79,10 +121,18 @@ h1,h2,h3,.display{ font-family:'Cinzel', serif; letter-spacing:.02em; }
   padding:22px 16px;
   display:flex; flex-direction:column; gap:22px;
 }
-.brand{ padding:0 6px; }
+.brand{ padding:0 6px; display:flex; align-items:center; gap:12px; }
+.brand .seal{ flex:none; width:38px; height:38px; filter:drop-shadow(0 0 8px rgba(184,145,47,.45)); animation:sealFlicker 5s ease-in-out infinite; }
+.brand .seal path{ transition:fill .3s; }
+@keyframes sealFlicker{
+  0%,100%{ filter:drop-shadow(0 0 7px rgba(184,145,47,.4)); }
+  45%{ filter:drop-shadow(0 0 11px rgba(217,180,92,.6)); }
+  55%{ filter:drop-shadow(0 0 6px rgba(184,145,47,.35)); }
+}
+.brand .txt{ min-width:0; }
 .brand .mark{
   font-family:'Cinzel Decorative', serif;
-  font-size:22px; color:var(--gold-bright);
+  font-size:20px; color:var(--gold-bright);
   line-height:1.15;
   text-shadow:0 0 18px rgba(184,145,47,.35);
 }
@@ -95,10 +145,21 @@ nav.tabs button{
   padding:11px 12px; border-radius:6px;
   color:var(--parch-dim); font-family:'Cinzel', serif; font-size:13.5px; letter-spacing:.03em;
   border-left:2px solid transparent;
+  transition:background .15s, color .15s, border-color .15s;
 }
 nav.tabs button .num{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--gold); opacity:.7; width:18px;}
+nav.tabs button .ico{ flex:none; width:15px; height:15px; opacity:.75; }
+nav.tabs button .ico svg{ width:100%; height:100%; display:block; }
 nav.tabs button:hover{ background:rgba(184,145,47,.08); color:var(--parch); }
+nav.tabs button:hover .ico{ opacity:1; }
 nav.tabs button.active{ background:rgba(184,145,47,.14); color:var(--gold-bright); border-left-color:var(--gold); }
+nav.tabs button.active .ico{ opacity:1; }
+
+/* chapter ornament above page titles */
+.page-head{ position:relative; }
+.page-head .eyebrow{ display:flex; align-items:center; gap:8px; }
+.page-head .eyebrow .flourish{ flex:none; width:16px; height:16px; opacity:.7; }
+.page-head .eyebrow .flourish svg{ width:100%; height:100%; display:block; }
 
 .side-stats{
   margin-top:auto;
@@ -125,6 +186,11 @@ nav.tabs button.active{ background:rgba(184,145,47,.14); color:var(--gold-bright
 
 main{ padding:34px 40px 80px; max-width:1080px; }
 @media (max-width:640px){ main{ padding:22px 16px 60px; } }
+main > section{ animation:tabIn .32s ease; }
+@keyframes tabIn{
+  from{ opacity:0; transform:translateY(8px); }
+  to{ opacity:1; transform:translateY(0); }
+}
 
 .page-head{ margin-bottom:26px; }
 .page-head h1{ font-size:28px; color:var(--parch); margin:6px 0 4px; }
@@ -414,7 +480,8 @@ ol.steps li em{ color:var(--gold-bright); font-style:normal; }
 .cg-field{ display:flex; flex-direction:column; gap:4px; min-width:0; }
 .cg-label{ font-size:11px; font-family:'JetBrains Mono',monospace; color:var(--parch-dim); text-transform:uppercase; letter-spacing:.06em; white-space:nowrap; }
 .cg-field input{ min-width:0; }
-#storyViewerWrap .story-content{ flex:1; overflow-y:auto; padding:28px 32px; background:linear-gradient(180deg,#0f0d0b,#0d0b09); line-height:1.85; font-size:19px; color:var(--parch); max-height:65vh; font-family:'EB Garamond',serif; }
+#storyViewerWrap .story-content{ flex:1; overflow-y:auto; padding:28px 32px; background:linear-gradient(180deg,#0f0d0b,#0d0b09); line-height:1.85; font-size:19px; color:var(--parch); max-height:65vh; font-family:'EB Garamond',serif; opacity:1; transition:opacity .22s ease, transform .22s ease; }
+#storyViewerWrap .story-content.turning{ opacity:0; transform:translateY(6px); }
 #storyViewerWrap .story-content p{ margin:0 0 14px; text-indent:1.2em; }
 #storyViewerWrap .story-content p:first-child{ text-indent:0; }
 #storyViewerWrap .story-content p:first-child::first-letter{ font-size:2.8em; float:left; line-height:.8; padding-right:6px; color:var(--gold-bright); font-family:'Cinzel Decorative',serif; }
@@ -440,16 +507,23 @@ ol.steps li em{ color:var(--gold-bright); font-style:normal; }
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
-      <div class="mark">Cidadela<br>do Caos</div>
-      <div class="sub">Companheiro de aventura</div>
+      <svg class="seal" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="32" cy="32" r="29" fill="#211c17" stroke="#4a3f2f" stroke-width="1.5"/>
+        <path d="M32 10 L38.5 25 L54 27 L42 37.5 L45.5 53 L32 44.5 L18.5 53 L22 37.5 L10 27 L25.5 25 Z" fill="#b8912f"/>
+        <circle cx="32" cy="32" r="6.5" fill="#1c1611"/>
+      </svg>
+      <div class="txt">
+        <div class="mark">Cidadela<br>do Caos</div>
+        <div class="sub">Companheiro de aventura</div>
+      </div>
     </div>
     <nav class="tabs" id="tabs">
-      <button data-tab="manual" class="active"><span class="num">00</span> Como Jogar</button>
-      <button data-tab="ficha"><span class="num">01</span> Ficha de Aventuras</button>
-      <button data-tab="combate"><span class="num">02</span> Combate</button>
-      <button data-tab="magia"><span class="num">03</span> Encantos Mágicos</button>
-      <button data-tab="equip"><span class="num">04</span> Equipamento &amp; Ouro</button>
-      <button data-tab="livro"><span class="num">05</span> Livro &amp; Progresso</button>
+      <button data-tab="manual" class="active"><span class="num">00</span><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5c3-1.5 6-1.5 8 0v14c-2-1.5-5-1.5-8 0V5Z"/><path d="M20 5c-3-1.5-6-1.5-8 0v14c2-1.5 5-1.5 8 0V5Z"/></svg></span> Como Jogar</button>
+      <button data-tab="ficha"><span class="num">01</span><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3l7 3v6c0 5-3 8-7 9-4-1-7-4-7-9V6l7-3Z"/></svg></span> Ficha de Aventuras</button>
+      <button data-tab="combate"><span class="num">02</span><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M6.5 17.5 17 7M14 4l6 6M4 20l3-1 1-3" stroke-linecap="round" stroke-linejoin="round"/></svg></span> Combate</button>
+      <button data-tab="magia"><span class="num">03</span><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v3M12 18v3M3 12h3M18 12h3M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2" stroke-linecap="round"/><circle cx="12" cy="12" r="3"/></svg></span> Encantos Mágicos</button>
+      <button data-tab="equip"><span class="num">04</span><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 8V6a5 5 0 0 1 10 0v2" stroke-linecap="round"/><rect x="4" y="8" width="16" height="12" rx="2"/></svg></span> Equipamento &amp; Ouro</button>
+      <button data-tab="livro"><span class="num">05</span><span class="ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M4 5.5C6 4.5 9 4.5 12 6c3-1.5 6-1.5 8-.5v13c-2-1-5-1-8 .5-3-1.5-6-1.5-8-.5v-13Z" stroke-linejoin="round"/><path d="M12 6v13"/></svg></span> Livro &amp; Progresso</button>
     </nav>
     <div class="side-stats" id="sideStats"></div>
     <button class="reset-btn" id="resetBtn">Reiniciar aventura</button>
@@ -459,7 +533,7 @@ ol.steps li em{ color:var(--gold-bright); font-style:normal; }
     <!-- MANUAL -->
     <section id="tab-manual">
       <div class="page-head">
-        <div class="eyebrow">Guia rápido</div>
+        <div class="eyebrow"><span class="flourish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2v20M6 8l6-6 6 6M6 16l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Guia rápido</div>
         <h1>Como jogar</h1>
         <p>Um passo a passo de como usar o aplicativo junto com o seu livro-jogo, sem precisar de papel, caneta ou dados físicos.</p>
       </div>
@@ -507,7 +581,7 @@ ol.steps li em{ color:var(--gold-bright); font-style:normal; }
     <!-- FICHA -->
     <section id="tab-ficha" class="hidden">
       <div class="page-head">
-        <div class="eyebrow">Folha de Aventuras</div>
+        <div class="eyebrow"><span class="flourish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2v20M6 8l6-6 6 6M6 16l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Folha de Aventuras</div>
         <h1>Seus atributos</h1>
         <p>Jogue os dados para gerar seus índices iniciais, ou ajuste manualmente. Os índices nunca podem ultrapassar o valor Inicial, salvo instrução específica de alguma página.</p>
       </div>
@@ -593,7 +667,7 @@ ol.steps li em{ color:var(--gold-bright); font-style:normal; }
     <!-- COMBATE -->
     <section id="tab-combate" class="hidden">
       <div class="page-head">
-        <div class="eyebrow">Sequência de combate</div>
+        <div class="eyebrow"><span class="flourish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2v20M6 8l6-6 6 6M6 16l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Sequência de combate</div>
         <h1>Batalhas</h1>
         <p>Registre as criaturas do encontro e jogue a série de ataque. O aplicativo calcula a Força de Ataque de cada lado e aplica os ferimentos conforme as regras.</p>
       </div>
@@ -648,7 +722,7 @@ ol.steps li em{ color:var(--gold-bright); font-style:normal; }
     <!-- MAGIA -->
     <section id="tab-magia" class="hidden">
       <div class="page-head">
-        <div class="eyebrow">O Uso da Magia</div>
+        <div class="eyebrow"><span class="flourish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2v20M6 8l6-6 6 6M6 16l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>O Uso da Magia</div>
         <h1>Encantos escolhidos</h1>
         <p>Distribua seus encantos disponíveis (igual ao seu índice de MAGIA inicial) entre as opções abaixo. Cada uso risca um encanto da lista.</p>
       </div>
@@ -664,7 +738,7 @@ ol.steps li em{ color:var(--gold-bright); font-style:normal; }
     <!-- EQUIPAMENTO -->
     <section id="tab-equip" class="hidden">
       <div class="page-head">
-        <div class="eyebrow">Mochila do aventureiro</div>
+        <div class="eyebrow"><span class="flourish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2v20M6 8l6-6 6 6M6 16l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Mochila do aventureiro</div>
         <h1>Equipamento &amp; Ouro</h1>
         <p>Registre tudo que encontrar pelo caminho. Espada, armadura de couro, lanterna e mochila fazem parte do equipamento inicial.</p>
       </div>
@@ -696,7 +770,7 @@ ol.steps li em{ color:var(--gold-bright); font-style:normal; }
     <!-- LIVRO & PROGRESSO -->
     <section id="tab-livro" class="hidden">
       <div class="page-head">
-        <div class="eyebrow">Sua cópia do livro</div>
+        <div class="eyebrow"><span class="flourish"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 2v20M6 8l6-6 6 6M6 16l6 6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Sua cópia do livro</div>
         <h1>Livro &amp; Progresso</h1>
         <p>A história completa do livro está aqui — comece pela introdução e clique em "Começar Aventura". Navegue pelos parágrafos clicando nas escolhas em destaque.</p>
       </div>
@@ -736,6 +810,8 @@ ol.steps li em{ color:var(--gold-bright); font-style:normal; }
   </main>
 
   <aside class="shortcuts" id="shortcutPanel"></aside>
+
+  <div id="damageFlash"></div>
 
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal-box" id="modalBox">
@@ -1201,7 +1277,24 @@ function luckDamage(m, dealtByYou){
   }
 }
 
+function flashDamage(kind){
+  // purely cosmetic — brief screen flash + shake, never touches game state
+  const el = document.getElementById('damageFlash');
+  const app = document.querySelector('.app');
+  if(el){
+    el.classList.remove('flash-you','flash-monster');
+    void el.offsetWidth;
+    el.classList.add(kind==='you' ? 'flash-you' : 'flash-monster');
+  }
+  if(app && kind==='you'){
+    app.classList.remove('shake');
+    void app.offsetWidth;
+    app.classList.add('shake');
+  }
+}
+
 function applyDamage(m, amount, toYou, logIt){
+  if(amount>0) flashDamage(toYou ? 'you' : 'monster');
   if(toYou){
     state.ene.cur = clamp(state.ene.cur - amount, 0, state.ene.ini);
     if(logIt) logCombat(`Você perdeu ${amount} ponto(s) de ENERGIA (${state.ene.cur}/${state.ene.ini}).`, 'hit-monster');
@@ -1547,6 +1640,13 @@ function renderStory(){
       goToParagraph(parseInt(el.dataset.para));
     });
   });
+
+  // cosmetic page-turn fade-in — purely visual, no effect on state
+  const contentEl = wrap.querySelector('.story-content');
+  if(contentEl){
+    contentEl.classList.add('turning');
+    requestAnimationFrame(()=>{ requestAnimationFrame(()=>{ contentEl.classList.remove('turning'); }); });
+  }
 }
 
 
