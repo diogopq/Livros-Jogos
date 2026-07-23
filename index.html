@@ -1633,9 +1633,10 @@ function renderModalCombat(){
          <div class="sc-field"><label>HAB</label><input type="number" id="modalMHab" value="6" min="1"></div>
          <div class="sc-field"><label>ENE</label><input type="number" id="modalMEne" value="6" min="1"></div>
          <button class="pill-btn" id="modalAddMonster">+</button>
-       </div>
-       ${m && m.dead ? '<div class="sc-result neutral" style="margin-top:4px;">Criatura derrotada.</div>' : '<div class="sc-empty" style="margin-top:4px;">Nenhuma criatura em combate.</div>'}
-       <hr class="divider">
+        </div>
+        <div id="modalCombatResult"></div>
+        ${m && m.dead ? '<div class="sc-result neutral" style="margin-top:4px;">Criatura derrotada.</div>' : '<div class="sc-empty" style="margin-top:4px;">Nenhuma criatura em combate.</div>'}
+        <hr class="divider">
        <h3 style="margin:8px 0;font-size:13px;">Registro da batalha</h3>
        <div class="log" id="modalCombatLog" style="max-height:200px;overflow-y:auto;"></div>`;
 
@@ -1709,7 +1710,7 @@ function renderModalCombat(){
       if(state.monsters.every(x=>!x.active)) mon.active = true;
       state.monsters.push(mon);
       save(); renderMonsters(); renderCombatHead(); renderShortcuts();
-      document.getElementById('modalCombatResult').innerHTML = `<div class="sc-result good">${escapeHtml(name)} registrado!</div>`;
+      renderModalCombat();
     });
   }
 }
