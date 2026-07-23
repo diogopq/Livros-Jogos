@@ -1,0 +1,1820 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cidadela do Caos — Companheiro de Aventura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Cinzel+Decorative:wght@700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<script src="paragraphs.js"></script>
+<script>const BOOK_PARAGRAPHS = paragraphs;
+
+const BOOK_INTRO = `O ordeiro e generoso povo do Vale dos Salgueiros vive há oito anos sob o terror e medo do feiticeiro Balthus Dire. Terror — porque o poder dele é realmente aterrorizante — e medo causados pela notícia que acabou chegando aos ouvidos desse povo, vinda dos domínios do feiticeiro, de que seus ambiciosos planos de conquista começariam pelo próprio Vale.
+
+Um fiel Semi-Elfo enviado em uma missão de espionagem à Torre Negra voltou galopando para o Vale há três dias com uma mensagem desesperada. Do interior das cavernas de Rocha Escarpada, Balthus Dire tinha recrutado um exército de Caóticos e se preparava para atacar com eles o Vale dentro de uma semana.
+
+O Rei Salamon era um homem de ação. Foram enviados mensageiros por todo o Vale no mesmo dia para preparar as defesas e convocar os homens para a guerra. Foram enviados também cavaleiros à Grande Floresta de Yore para avisar aos Semi-Elfos que moravam lá e fazer um apelo para que se aliassem às forças. O Rei Salamon era também um homem sábio. Ele sabia muito bem que as notícias inevitavelmente chegariam aos ouvidos do Grande Mago de Yore, um mestre da magia branca de grandes poderes, que vivia nas profundezas da floresta. O mago era velho e não resistiria a uma batalha destas proporções. Mas ele havia ensinado suas artes a vários jovens magos, e talvez um de seus discípulos de magia ajudasse o rei e seus súditos com coragem e ambição.
+
+Você é o aluno brilhante do Grande Mago de Yore. Ele tem sido um Mestre duro, e sua própria impaciência muitas vezes foi mais forte do que você. Talvez um pouco precipitadamente, você partiu de imediato para a corte de Salamon. O rei recebeu-o entusiasticamente e explicou seu plano. A batalha poderia ser evitada sem derramamento de sangue se Balthus fosse assassinado antes que seu exército pudesse ser reunido.
+
+A missão que você tem pela frente é extremamente perigosa. Balthus Dire está cercado, em sua Cidadela, por uma multidão de criaturas assombrosas. Embora a Magia seja a sua arma mais forte, haverá momentos em que você terá que confiar em sua espada para sobreviver.
+
+O Rei Salamon expôs a você como seria a sua missão e o advertiu dos perigos que estavam à sua frente. Há um caminho melhor para atravessar a Cidadela. Se você o descobrir, terá êxito com um mínimo de risco para a sua pessoa. Talvez você precise de várias viagens para descobrir o caminho mais fácil para atravessar a Cidadela.
+
+Você deixa o Vale dos Salgueiros na longa caminhada para a Torre Negra. No sopé da colina de Rocha Escarpada, você pode ver sua silhueta contra o céu escuro...`;
+</script>
+<style>
+:root{
+  --ink:#131110;
+  --ink-2:#1c1815;
+  --panel:#211c17;
+  --panel-2:#2a231c;
+  --hairline:#4a3f2f;
+  --gold:#b8912f;
+  --gold-bright:#d9b45c;
+  --blood:#8f3226;
+  --blood-bright:#c24632;
+  --parch:#e9dfc4;
+  --parch-dim:#c9bd9c;
+  --parch-ink:#241d13;
+  --ok:#5f7d4f;
+  --shadow: 0 10px 30px rgba(0,0,0,.45);
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:
+    radial-gradient(ellipse at top left, #241f18 0%, transparent 55%),
+    radial-gradient(ellipse at bottom right, #1a1512 0%, transparent 55%),
+    var(--ink);
+  color:var(--parch);
+  font-family:'EB Garamond', serif;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{ background:var(--gold); color:var(--parch-ink); }
+h1,h2,h3,.display{ font-family:'Cinzel', serif; letter-spacing:.02em; }
+.eyebrow{
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px; letter-spacing:.22em; text-transform:uppercase;
+  color:var(--gold); opacity:.85;
+}
+
+/* ---------- layout shell ---------- */
+.app{
+  display:grid;
+  grid-template-columns: 236px 1fr auto;
+  min-height:100vh;
+  min-width:0;
+}
+.app > *{ min-width:0; }
+@media (max-width: 860px){
+  .app{ grid-template-columns: 1fr; }
+  .sidebar{ position:sticky; top:0; z-index:20; }
+}
+
+.sidebar{
+  background:linear-gradient(180deg,#1a1613,#151210);
+  border-right:1px solid var(--hairline);
+  padding:22px 16px;
+  display:flex; flex-direction:column; gap:22px;
+}
+.brand{ padding:0 6px; }
+.brand .mark{
+  font-family:'Cinzel Decorative', serif;
+  font-size:22px; color:var(--gold-bright);
+  line-height:1.15;
+  text-shadow:0 0 18px rgba(184,145,47,.35);
+}
+.brand .sub{ margin-top:4px; color:var(--parch-dim); font-size:13px; font-style:italic;}
+
+nav.tabs{ display:flex; flex-direction:column; gap:4px; }
+nav.tabs button{
+  all:unset; cursor:pointer;
+  display:flex; align-items:center; gap:10px;
+  padding:11px 12px; border-radius:6px;
+  color:var(--parch-dim); font-family:'Cinzel', serif; font-size:13.5px; letter-spacing:.03em;
+  border-left:2px solid transparent;
+}
+nav.tabs button .num{ font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--gold); opacity:.7; width:18px;}
+nav.tabs button:hover{ background:rgba(184,145,47,.08); color:var(--parch); }
+nav.tabs button.active{ background:rgba(184,145,47,.14); color:var(--gold-bright); border-left-color:var(--gold); }
+
+.side-stats{
+  margin-top:auto;
+  border-top:1px solid var(--hairline);
+  padding-top:16px;
+  display:flex; flex-direction:column; gap:10px;
+}
+.stat-mini{ display:flex; flex-direction:column; gap:4px; }
+.stat-mini .lbl{ display:flex; justify-content:space-between; font-size:11px; font-family:'JetBrains Mono',monospace; color:var(--parch-dim); }
+.stat-mini .lbl b{ color:var(--parch); }
+.bar{ height:6px; border-radius:3px; background:#100d0b; overflow:hidden; border:1px solid var(--hairline); }
+.bar > i{ display:block; height:100%; border-radius:3px; }
+.bar.hab > i{ background:linear-gradient(90deg,#7d8f5a,#a7bd78); }
+.bar.ene > i{ background:linear-gradient(90deg,var(--blood),var(--blood-bright)); }
+.bar.sor > i{ background:linear-gradient(90deg,#7d6620,var(--gold-bright)); }
+.bar.mag > i{ background:linear-gradient(90deg,#4a5f7d,#7fa0c9); }
+
+.reset-btn{
+  all:unset; cursor:pointer; text-align:center;
+  font-family:'JetBrains Mono',monospace; font-size:10.5px; letter-spacing:.1em;
+  color:var(--blood-bright); opacity:.7; padding:6px; text-transform:uppercase;
+}
+.reset-btn:hover{ opacity:1; text-decoration:underline; }
+
+main{ padding:34px 40px 80px; max-width:1080px; }
+@media (max-width:640px){ main{ padding:22px 16px 60px; } }
+
+.page-head{ margin-bottom:26px; }
+.page-head h1{ font-size:28px; color:var(--parch); margin:6px 0 4px; }
+.page-head p{ color:var(--parch-dim); font-size:15px; max-width:640px; line-height:1.5; margin:0;}
+
+.grid{ display:grid; gap:18px; }
+.grid.cols-2{ grid-template-columns:1fr 1fr; }
+.grid.cols-3{ grid-template-columns:repeat(3,1fr); }
+.grid.cols-4{ grid-template-columns:repeat(4,1fr); }
+@media (max-width:760px){ .grid.cols-2,.grid.cols-3,.grid.cols-4{ grid-template-columns:1fr; } }
+
+.card{
+  background:linear-gradient(180deg,var(--panel),var(--panel-2));
+  border:1px solid var(--hairline);
+  border-radius:10px;
+  padding:20px;
+  box-shadow:var(--shadow);
+  position:relative;
+}
+.card::before{
+  content:''; position:absolute; inset:0; border-radius:10px; padding:1px;
+  background:linear-gradient(160deg, rgba(184,145,47,.25), transparent 35%);
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none;
+}
+.card h3{ margin:0 0 14px; font-size:15px; color:var(--gold-bright); display:flex; align-items:center; gap:8px; }
+
+/* attribute dial */
+.attr{
+  display:flex; align-items:center; justify-content:space-between;
+  gap:12px; padding:12px 14px; border-radius:8px;
+  background:rgba(0,0,0,.18); border:1px solid var(--hairline); margin-bottom:10px;
+}
+.attr:last-child{ margin-bottom:0; }
+.attr .name{ font-family:'Cinzel',serif; font-size:13px; color:var(--parch-dim); }
+.attr .vals{ display:flex; align-items:baseline; gap:6px; font-family:'JetBrains Mono',monospace; }
+.attr .vals .cur{ font-size:22px; color:var(--parch); font-weight:700; }
+.attr .vals .max{ font-size:13px; color:var(--parch-dim); }
+.attr .ctrl{ display:flex; gap:4px; }
+.pill-btn{
+  all:unset; cursor:pointer; width:26px; height:26px; border-radius:6px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(184,145,47,.12); border:1px solid var(--hairline); color:var(--gold-bright);
+  font-family:'JetBrains Mono',monospace; font-size:14px;
+}
+.pill-btn:hover{ background:rgba(184,145,47,.25); }
+.pill-btn:active{ transform:scale(.94); }
+
+/* buttons */
+.btn{
+  all:unset; cursor:pointer; text-align:center;
+  font-family:'Cinzel',serif; font-size:13.5px; letter-spacing:.03em;
+  padding:11px 18px; border-radius:7px; border:1px solid var(--hairline);
+  color:var(--parch); background:rgba(255,255,255,.03);
+}
+.btn:hover{ background:rgba(255,255,255,.07); border-color:var(--gold); }
+.btn:active{ transform:translateY(1px); }
+.btn.primary{ background:linear-gradient(180deg,var(--gold),#8f6f22); color:#1c1611; border-color:#8f6f22; font-weight:700;}
+.btn.primary:hover{ filter:brightness(1.08); }
+.btn.danger{ border-color:var(--blood); color:var(--blood-bright); }
+.btn.danger:hover{ background:rgba(143,50,38,.15); }
+.btn.small{ padding:7px 12px; font-size:12px; }
+.btn:disabled{ opacity:.35; cursor:not-allowed; }
+.row{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+
+input[type=text],input[type=number]{
+  all:unset; box-sizing:border-box; background:rgba(0,0,0,.25); border:1px solid var(--hairline);
+  border-radius:6px; padding:9px 10px; color:var(--parch); font-family:'EB Garamond',serif;
+  font-size:15px; width:100%;
+}
+input:focus{ border-color:var(--gold); }
+label.field{ display:flex; flex-direction:column; gap:5px; font-size:12px; color:var(--parch-dim); font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:.06em; flex:1 1 130px; min-width:0; }
+.row .field input{ width:100%; }
+
+/* dice */
+.dice-tray{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.dice{
+  width:52px; height:52px; border-radius:10px; position:relative;
+  background:linear-gradient(155deg,#efe6ce,#d8caa0);
+  box-shadow:0 4px 0 #7a6a3d, 0 8px 14px rgba(0,0,0,.4);
+  display:grid; grid-template-columns:repeat(3,1fr); grid-template-rows:repeat(3,1fr);
+  padding:8px;
+}
+.dice .pip{ width:8px; height:8px; border-radius:50%; background:#2a2114; margin:auto; opacity:0; }
+.dice.rolling{ animation:tumble .55s ease; }
+@keyframes tumble{
+  0%{ transform:rotate(0deg) scale(1); }
+  30%{ transform:rotate(160deg) scale(1.08); }
+  60%{ transform:rotate(300deg) scale(.96); }
+  100%{ transform:rotate(360deg) scale(1); }
+}
+.dice-result{ font-family:'JetBrains Mono',monospace; }
+.dice-result .sum{ font-size:34px; color:var(--gold-bright); font-weight:700; line-height:1;}
+.dice-result .detail{ font-size:12px; color:var(--parch-dim); margin-top:4px; }
+
+/* log */
+.log{
+  max-height:230px; overflow-y:auto; display:flex; flex-direction:column-reverse; gap:6px;
+  font-family:'JetBrains Mono',monospace; font-size:12.5px; padding-right:4px;
+}
+.log::-webkit-scrollbar{ width:6px; }
+.log::-webkit-scrollbar-thumb{ background:var(--hairline); border-radius:3px; }
+.log .entry{ padding:8px 10px; border-radius:6px; background:rgba(0,0,0,.22); border-left:2px solid var(--hairline); color:var(--parch-dim); line-height:1.4; }
+.log .entry.hit-you{ border-left-color:var(--ok); color:var(--parch); }
+.log .entry.hit-monster{ border-left-color:var(--blood-bright); color:var(--parch); }
+.log .entry.neutral{ border-left-color:var(--gold); }
+.log .entry.death{ border-left-color:var(--blood-bright); background:rgba(143,50,38,.18); color:var(--parch); font-weight:600; }
+.log .entry.victory{ border-left-color:var(--ok); background:rgba(95,125,79,.18); color:var(--parch); font-weight:600; }
+
+/* monster rows */
+.monster-card{
+  background:rgba(0,0,0,.2); border:1px solid var(--hairline); border-radius:8px;
+  padding:14px; margin-bottom:10px; display:flex; flex-direction:column; gap:10px;
+}
+.monster-card.active{ border-color:var(--gold); box-shadow:0 0 0 1px var(--gold) inset; }
+.monster-card.dead{ opacity:.4; }
+.monster-head{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+.monster-head .mname{ font-family:'Cinzel',serif; font-size:14.5px; color:var(--parch); }
+.monster-vitals{ display:flex; gap:18px; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--parch-dim); }
+.monster-vitals b{ color:var(--parch); }
+
+/* spells */
+.spell{
+  display:flex; justify-content:space-between; align-items:center; gap:10px;
+  padding:12px 14px; border-radius:8px; background:rgba(0,0,0,.18); border:1px solid var(--hairline);
+  margin-bottom:8px;
+}
+.spell .info{ flex:1; }
+.spell .sname{ font-family:'Cinzel',serif; font-size:13.5px; color:var(--gold-bright); }
+.spell .sdesc{ font-size:13px; color:var(--parch-dim); margin-top:2px; line-height:1.4; }
+.spell .charges{ font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--parch-dim); white-space:nowrap; }
+.spell.empty{ opacity:.4; }
+
+.tag{
+  display:inline-block; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:.06em;
+  padding:2px 7px; border-radius:20px; border:1px solid var(--hairline); color:var(--parch-dim); text-transform:uppercase;
+}
+
+.equip-list{ display:flex; flex-direction:column; gap:8px; }
+.equip-item{ display:flex; justify-content:space-between; align-items:center; gap:8px; padding:9px 12px; background:rgba(0,0,0,.18); border:1px solid var(--hairline); border-radius:7px; font-size:14.5px;}
+.equip-item button{ all:unset; cursor:pointer; color:var(--blood-bright); font-family:'JetBrains Mono',monospace; font-size:12px; }
+
+.divider{ height:1px; background:var(--hairline); margin:18px 0; border:none; }
+.empty-state{ color:var(--parch-dim); font-style:italic; font-size:14px; padding:14px 0; }
+
+.badge-ouro{ font-family:'JetBrains Mono',monospace; font-size:20px; color:var(--gold-bright); }
+
+.hidden{ display:none !important; }
+
+.luck-result{ font-family:'Cinzel',serif; font-size:15px; padding:10px 14px; border-radius:8px; margin-top:10px; }
+.luck-result.good{ background:rgba(95,125,79,.18); color:#c8dcb8; border:1px solid var(--ok); }
+.luck-result.bad{ background:rgba(143,50,38,.18); color:#e6b6ac; border:1px solid var(--blood); }
+
+.footnote{ font-size:12px; color:var(--parch-dim); font-style:italic; margin-top:8px; }
+
+/* shortcut panel */
+.shortcuts{
+  background:linear-gradient(180deg,#1a1613,#151210);
+  border-left:1px solid var(--hairline);
+  padding:0; overflow:hidden; width:0;
+  flex-direction:column; gap:12px;
+  transition:width .2s, padding .2s;
+}
+.shortcuts.open{
+  padding:18px 14px; overflow-y:auto; width:280px;
+}
+.shortcuts.open::-webkit-scrollbar{ width:4px; }
+.shortcuts.open::-webkit-scrollbar-thumb{ background:var(--hairline); border-radius:2px; }
+.shortcuts.open::-webkit-scrollbar{ width:4px; }
+.shortcuts.open::-webkit-scrollbar-thumb{ background:var(--hairline); border-radius:2px; }
+.shortcut-card{
+  border:1px solid var(--hairline); border-radius:8px;
+  padding:12px; background:rgba(0,0,0,.18);
+  display:flex; flex-direction:column; gap:8px;
+}
+.shortcut-card h4{
+  margin:0; font-family:'Cinzel',serif; font-size:12px; letter-spacing:.04em;
+  color:var(--gold-bright); display:flex; align-items:center; gap:6px;
+}
+.shortcut-card h4 .sc-num{
+  font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--gold); opacity:.6;
+}
+.sc-monster{
+  font-size:12px; color:var(--parch-dim); font-family:'JetBrains Mono',monospace; line-height:1.5;
+}
+.sc-monster b{ color:var(--parch); }
+.sc-monster .dead-tag{ color:var(--blood-bright); }
+.sc-row{ display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.sc-row .sc-btn{
+  all:unset; cursor:pointer; text-align:center;
+  font-family:'Cinzel',serif; font-size:11.5px; letter-spacing:.02em;
+  padding:6px 10px; border-radius:5px; border:1px solid var(--hairline);
+  color:var(--parch); background:rgba(255,255,255,.03);
+  flex:1; min-width:60px;
+}
+.sc-row .sc-btn:hover{ background:rgba(255,255,255,.07); border-color:var(--gold); }
+.sc-row .sc-btn.primary{ background:linear-gradient(180deg,var(--gold),#8f6f22); color:#1c1611; border-color:#8f6f22; font-weight:700; }
+.sc-row .sc-btn.primary:hover{ filter:brightness(1.08); }
+.sc-row .sc-btn.danger{ border-color:var(--blood); color:var(--blood-bright); }
+.sc-row .sc-btn.danger:hover{ background:rgba(143,50,38,.15); }
+.sc-row .sc-btn:disabled{ opacity:.3; cursor:not-allowed; }
+.sc-row .sc-btn.small{ padding:4px 8px; font-size:10px; }
+.sc-field{ display:flex; flex-direction:column; gap:3px; }
+.sc-field label{ font-size:9.5px; font-family:'JetBrains Mono',monospace; color:var(--parch-dim); text-transform:uppercase; letter-spacing:.08em; }
+.sc-field input{ all:unset; box-sizing:border-box; background:rgba(0,0,0,.25); border:1px solid var(--hairline); border-radius:4px; padding:5px 6px; color:var(--parch); font-family:'EB Garamond',serif; font-size:12px; width:100%; }
+.sc-field input:focus{ border-color:var(--gold); }
+.sc-spell-item{ display:flex; justify-content:space-between; align-items:center; gap:6px; padding:4px 0; font-size:12px; border-bottom:1px solid rgba(74,63,47,.4); }
+.sc-spell-item:last-child{ border-bottom:none; }
+.sc-spell-item .sp-name{ color:var(--parch); flex:1; }
+.sc-spell-item .sp-uses{ color:var(--parch-dim); font-family:'JetBrains Mono',monospace; font-size:10px; white-space:nowrap; }
+.sc-inv-items{ font-size:12px; color:var(--parch-dim); line-height:1.5; max-height:80px; overflow-y:auto; }
+.sc-inv-items::-webkit-scrollbar{ width:3px; }
+.sc-inv-items::-webkit-scrollbar-thumb{ background:var(--hairline); border-radius:2px; }
+.sc-inv-items .sc-item{ padding:2px 4px; border-radius:3px; display:flex; justify-content:space-between; }
+.sc-inv-items .sc-item:hover{ background:rgba(255,255,255,.04); }
+.sc-inv-items .sc-item button{ all:unset; cursor:pointer; color:var(--blood-bright); font-size:10px; padding:0 4px; }
+.sc-inv-items .sc-item button:hover{ text-decoration:underline; }
+.sc-result{ font-size:11px; padding:6px 8px; border-radius:5px; margin-top:0; font-family:'JetBrains Mono',monospace; }
+.sc-result.good{ background:rgba(95,125,79,.15); color:#c8dcb8; border:1px solid var(--ok); }
+.sc-result.bad{ background:rgba(143,50,38,.15); color:#e6b6ac; border:1px solid var(--blood); }
+.sc-result.neutral{ background:rgba(184,145,47,.1); color:var(--gold-bright); border:1px solid var(--hairline); }
+.sc-add-monster{ display:grid; grid-template-columns:1fr 1fr 1fr 36px; gap:4px; align-items:end; }
+.sc-ouro{ font-family:'JetBrains Mono',monospace; font-size:16px; color:var(--gold-bright); }
+.sc-empty{ color:var(--parch-dim); font-style:italic; font-size:11px; }
+.sc-stats{ display:flex; flex-direction:column; gap:6px; }
+.sc-stat-row{ display:flex; align-items:center; gap:4px; font-size:11px; font-family:'JetBrains Mono',monospace; color:var(--parch-dim); }
+.sc-stat-row span{ flex:1; }
+.sc-stat-row .sc-stat-val{ color:var(--parch); font-size:12px; text-align:right; padding-right:4px; min-width:44px; }
+.sc-stat-row .pill-btn{ padding:1px 6px; font-size:11px; min-width:20px; line-height:1.2; }
+
+ol.steps{ list-style:none; margin:0; padding:0; counter-reset:step; display:flex; flex-direction:column; gap:12px; }
+ol.steps li{
+  counter-increment:step; position:relative; padding-left:38px; font-size:14.5px; line-height:1.55; color:var(--parch-dim);
+}
+ol.steps li::before{
+  content:counter(step); position:absolute; left:0; top:0;
+  width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(180deg,var(--gold),#8f6f22); color:#1c1611; font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700;
+}
+ol.steps li b{ color:var(--parch); font-family:'Cinzel',serif; font-weight:600; font-size:14px; }
+ol.steps li em{ color:var(--gold-bright); font-style:normal; }
+
+/* story reader */
+#storyViewerWrap{ border:1px solid var(--hairline); border-radius:8px; overflow:hidden; background:#0d0b09; min-height:70vh; display:flex; flex-direction:column; }
+#storyViewerWrap .story-empty{ padding:40px 28px; text-align:center; color:var(--parch-dim); font-style:italic; font-size:15px; }
+#storyViewerWrap .story-toolbar{ display:flex; align-items:center; gap:10px; padding:10px 14px; background:var(--panel); border-bottom:1px solid var(--hairline); flex-wrap:wrap; }
+#storyViewerWrap .story-toolbar .story-para-num{ font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--parch-dim); }
+#storyViewerWrap .story-toolbar .story-para-num b{ color:var(--gold-bright); font-size:16px; }
+.story-nav{ display:flex; gap:6px; }
+.combat-grid{ display:grid; grid-template-columns:1fr 140px 140px; gap:14px; margin-bottom:12px; }
+@media (max-width: 700px){ .combat-grid{ grid-template-columns:1fr; } }
+.cg-field{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+.cg-label{ font-size:11px; font-family:'JetBrains Mono',monospace; color:var(--parch-dim); text-transform:uppercase; letter-spacing:.06em; white-space:nowrap; }
+.cg-field input{ min-width:0; }
+#storyViewerWrap .story-content{ flex:1; overflow-y:auto; padding:28px 32px; background:linear-gradient(180deg,#0f0d0b,#0d0b09); line-height:1.85; font-size:19px; color:var(--parch); max-height:65vh; font-family:'EB Garamond',serif; }
+#storyViewerWrap .story-content p{ margin:0 0 14px; text-indent:1.2em; }
+#storyViewerWrap .story-content p:first-child{ text-indent:0; }
+#storyViewerWrap .story-content p:first-child::first-letter{ font-size:2.8em; float:left; line-height:.8; padding-right:6px; color:var(--gold-bright); font-family:'Cinzel Decorative',serif; }
+#storyViewerWrap .story-content .story-intro{ padding:10px 0; }
+#storyViewerWrap .story-content .story-intro p{ text-indent:1.2em; margin:0 0 16px; font-size:18px; color:var(--parch-dim); }
+#storyViewerWrap .story-content .story-intro p:first-child::first-letter{ font-size:2.8em; float:left; line-height:.8; padding-right:6px; color:var(--gold-bright); font-family:'Cinzel Decorative',serif; }
+#storyViewerWrap .story-content .story-intro .start-btn{ display:block; text-align:center; margin:28px auto 10px; max-width:300px; padding:14px 20px; border-radius:8px; background:linear-gradient(180deg,var(--gold),#8f6f22); color:#1c1611; font-family:'Cinzel',serif; font-size:16px; font-weight:700; border:none; cursor:pointer; letter-spacing:.04em; transition:all .2s; }
+#storyViewerWrap .story-content .story-intro .start-btn:hover{ filter:brightness(1.12); transform:scale(1.02); }
+#storyViewerWrap .story-content .story-intro .start-btn:active{ transform:scale(.97); }
+#storyViewerWrap .story-content .story-choices{ margin-top:18px; padding-top:16px; border-top:1px solid var(--hairline); }
+#storyViewerWrap .story-content .choice{ display:block; padding:12px 18px; margin:10px 0; border-radius:8px; background:rgba(184,145,47,.05); border:1px solid var(--hairline); cursor:pointer; transition:all .18s; text-decoration:none; }
+#storyViewerWrap .story-content .choice:hover{ background:rgba(184,145,47,.15); border-color:var(--gold); transform:translateX(6px); box-shadow:0 2px 16px rgba(184,145,47,.08); }
+#storyViewerWrap .story-content .choice:active{ transform:translateX(6px) scale(.97); }
+#storyViewerWrap .story-content .choice .choice-label{ display:block; font-family:'EB Garamond',serif; font-size:17px; color:var(--parch); line-height:1.4; margin-bottom:4px; }
+#storyViewerWrap .story-content .choice .choice-action{ display:inline-block; font-family:'Cinzel',serif; font-size:12.5px; color:var(--gold-bright); letter-spacing:.04em; border-top:1px solid rgba(184,145,47,.15); padding-top:6px; margin-top:2px; }
+#storyViewerWrap .story-content .monster-stat{ display:inline-block; margin:12px 0; padding:12px 20px; border-radius:6px; background:rgba(143,50,38,.1); border:1px solid var(--blood); color:var(--blood-bright); font-family:'JetBrains Mono',monospace; font-size:13px; letter-spacing:.03em; }
+#storyViewerWrap .story-content .monster-stat b{ color:var(--parch); }
+#storyViewerWrap .story-content .story-sep{ border:none; border-top:1px solid var(--hairline); margin:16px 0; opacity:.4; }
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="mark">Cidadela<br>do Caos</div>
+      <div class="sub">Companheiro de aventura</div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button data-tab="manual" class="active"><span class="num">00</span> Como Jogar</button>
+      <button data-tab="ficha"><span class="num">01</span> Ficha de Aventuras</button>
+      <button data-tab="combate"><span class="num">02</span> Combate</button>
+      <button data-tab="magia"><span class="num">03</span> Encantos Mágicos</button>
+      <button data-tab="equip"><span class="num">04</span> Equipamento &amp; Ouro</button>
+      <button data-tab="livro"><span class="num">05</span> Livro &amp; Progresso</button>
+    </nav>
+    <div class="side-stats" id="sideStats"></div>
+    <button class="reset-btn" id="resetBtn">Reiniciar aventura</button>
+  </aside>
+
+  <main>
+    <!-- MANUAL -->
+    <section id="tab-manual">
+      <div class="page-head">
+        <div class="eyebrow">Guia rápido</div>
+        <h1>Como jogar</h1>
+        <p>Um passo a passo de como usar o aplicativo junto com o seu livro-jogo, sem precisar de papel, caneta ou dados físicos.</p>
+      </div>
+
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>① Antes de começar a aventura</h3>
+          <ol class="steps">
+            <li><b>Leia o livro.</b> Vá na aba <em>Livro &amp; Progresso</em> — o texto completo do livro-jogo já está embutido no aplicativo.</li>
+            <li><b>Gere seus índices.</b> Vá na aba <em>Ficha de Aventuras</em> e clique em "Rolar todos os índices" para sortear HABILIDADE, ENERGIA, SORTE e MAGIA.</li>
+            <li><b>Escolha seus encantos.</b> Vá na aba <em>Encantos Mágicos</em> e distribua os usos disponíveis (o total é igual ao seu índice de MAGIA) entre os 12 encantos da lista.</li>
+            <li><b>Confira o equipamento inicial.</b> Vá na aba <em>Equipamento &amp; Ouro</em> e registre o que o livro indicar para o início (arma, armadura, itens, ouro).</li>
+            <li><b>Anote o parágrafo inicial.</b> Volte à aba <em>Livro &amp; Progresso</em>, leia o primeiro parágrafo indicado pelo livro e digite esse número em "Marcador de parágrafo".</li>
+          </ol>
+        </div>
+
+        <div class="card">
+          <h3>② Durante a aventura</h3>
+          <ol class="steps">
+            <li><b>Leia o parágrafo atual</b> no leitor de história embutido.</li>
+            <li><b>Tome a decisão</b> clicando nas escolhas em destaque no texto, ou digite o número manualmente em "Ir para".</li>
+            <li><b>Se pedir um teste de sorte</b> fora de combate, use o botão "Testar a Sorte" na aba Ficha.</li>
+            <li><b>Se cair em combate</b>, vá na aba Combate, registre a criatura (Habilidade/Energia indicadas no livro) e clique em "Jogar série de ataque" a cada rodada até vencer, fugir ou ser derrotado.</li>
+            <li><b>Se quiser fugir</b> de uma batalha, use o botão "Fugir" — o ferimento automático é aplicado sozinho.</li>
+            <li><b>Se lançar um encanto</b>, vá em Encantos Mágicos e clique em "Usar" no encanto escolhido.</li>
+            <li><b>Sempre que encontrar ouro ou itens</b>, registre-os na aba Equipamento &amp; Ouro.</li>
+            <li>Repita o ciclo até vencer a aventura ou até sua ENERGIA chegar a zero.</li>
+          </ol>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <h3>Referência rápida — Sequência de Ataque</h3>
+        <ol class="steps">
+          <li>Jogue 2 dados pela criatura + índice de Habilidade dela = Força de Ataque da criatura.</li>
+          <li>Jogue 2 dados por você + seu índice de Habilidade atual = sua Força de Ataque.</li>
+          <li>Quem tiver a Força maior fere o outro (−2 de Energia). Empate: ambos se defendem, jogue de novo.</li>
+          <li>Depois de um ferimento, você pode Testar a Sorte para causar/sofrer mais ou menos dano.</li>
+          <li>Repita até a Energia de um dos lados chegar a zero.</li>
+        </ol>
+        <p class="footnote">O aplicativo já faz esses cálculos automaticamente na aba Combate — este resumo é só para lembrar a lógica por trás dos botões.</p>
+      </div>
+    </section>
+
+    <!-- FICHA -->
+    <section id="tab-ficha" class="hidden">
+      <div class="page-head">
+        <div class="eyebrow">Folha de Aventuras</div>
+        <h1>Seus atributos</h1>
+        <p>Jogue os dados para gerar seus índices iniciais, ou ajuste manualmente. Os índices nunca podem ultrapassar o valor Inicial, salvo instrução específica de alguma página.</p>
+      </div>
+
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Gerar índices iniciais</h3>
+          <p class="footnote" style="margin-top:-6px;margin-bottom:12px;">Habilidade = 1d6+6 · Energia = 2d6+12 · Sorte = 1d6+6 · Magia = 2d6+6</p>
+          <div class="row">
+            <button class="btn primary" id="rollAllBtn">🎲 Rolar todos os índices</button>
+            <button class="btn small" id="confirmRollDiv"></button>
+          </div>
+          <div id="rollAllResult"></div>
+        </div>
+
+        <div class="card">
+          <h3>Dado avulso</h3>
+          <p class="footnote" style="margin-top:-6px;margin-bottom:12px;">Para qualquer situação do livro que peça 1 ou 2 dados.</p>
+          <div class="dice-tray">
+            <div class="dice" id="freeDie1"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+            <div class="dice" id="freeDie2"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+            <div class="dice-result"><div class="sum" id="freeSum">–</div><div class="detail" id="freeDetail">soma dos dados</div></div>
+          </div>
+          <div class="row" style="margin-top:12px;">
+            <button class="btn" id="roll1Btn">Jogar 1 dado</button>
+            <button class="btn" id="roll2Btn">Jogar 2 dados</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid cols-4" style="margin-top:18px;">
+        <div class="card">
+          <h3>Habilidade</h3>
+          <div class="attr">
+            <div class="vals"><span class="cur" id="hab_cur">-</span><span class="max">/ <span id="hab_ini">-</span></span></div>
+            <div class="ctrl">
+              <button class="pill-btn" data-adj="hab" data-d="-1">–</button>
+              <button class="pill-btn" data-adj="hab" data-d="1">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Energia</h3>
+          <div class="attr">
+            <div class="vals"><span class="cur" id="ene_cur">-</span><span class="max">/ <span id="ene_ini">-</span></span></div>
+            <div class="ctrl">
+              <button class="pill-btn" data-adj="ene" data-d="-1">–</button>
+              <button class="pill-btn" data-adj="ene" data-d="1">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Sorte</h3>
+          <div class="attr">
+            <div class="vals"><span class="cur" id="sor_cur">-</span><span class="max">/ <span id="sor_ini">-</span></span></div>
+            <div class="ctrl">
+              <button class="pill-btn" data-adj="sor" data-d="-1">–</button>
+              <button class="pill-btn" data-adj="sor" data-d="1">+</button>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Magia</h3>
+          <div class="attr">
+            <div class="vals"><span class="cur" id="mag_cur">-</span><span class="max">/ <span id="mag_ini">-</span></span></div>
+            <div class="ctrl">
+              <span class="tag" title="Total de encantos que podem ser escolhidos">encantos</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <h3>Testar a Sorte (uso geral)</h3>
+        <p class="footnote" style="margin-top:-6px;">Use quando uma página do livro pedir para testar sua sorte fora de combate. Custa 1 ponto de SORTE a cada teste.</p>
+        <div class="row">
+          <button class="btn primary" id="generalLuckBtn">🎲 Testar a Sorte</button>
+        </div>
+        <div id="generalLuckResult"></div>
+      </div>
+    </section>
+
+    <!-- COMBATE -->
+    <section id="tab-combate" class="hidden">
+      <div class="page-head">
+        <div class="eyebrow">Sequência de combate</div>
+        <h1>Batalhas</h1>
+        <p>Registre as criaturas do encontro e jogue a série de ataque. O aplicativo calcula a Força de Ataque de cada lado e aplica os ferimentos conforme as regras.</p>
+      </div>
+
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Adicionar criatura ao encontro</h3>
+          <div class="combat-grid">
+            <div class="cg-field"><span class="cg-label">Nome</span><input type="text" id="mName" placeholder="ex: Goblin da guarda"></div>
+            <div class="cg-field"><span class="cg-label">Habilidade</span><input type="number" id="mHab" min="1" value="6"></div>
+            <div class="cg-field"><span class="cg-label">Energia</span><input type="number" id="mEne" min="1" value="6"></div>
+          </div>
+          <button class="btn primary" id="addMonsterBtn">Registrar criatura</button>
+        </div>
+
+        <div class="card">
+          <h3>Fuga</h3>
+          <p class="footnote" style="margin-top:-6px;">Foge automaticamente da criatura ativa — sofre 2 pontos de ferimento (pode testar a Sorte para reduzir ou agravar).</p>
+          <div class="row">
+            <button class="btn danger" id="fleeBtn">Fugir da batalha</button>
+          </div>
+          <div id="fleeResult"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <h3>Criaturas do encontro</h3>
+        <div id="monsterList"><div class="empty-state">Nenhuma criatura registrada ainda.</div></div>
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <h3>Série de Ataque — <span id="activeMonsterName" style="color:var(--parch-dim);font-family:'EB Garamond',serif;">selecione uma criatura</span></h3>
+        <div class="dice-tray" style="margin-bottom:14px;">
+          <div class="dice" id="cDieYou1"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+          <div class="dice" id="cDieYou2"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+          <div class="dice-result"><div class="sum" id="cForceYou">–</div><div class="detail">sua Força de Ataque</div></div>
+          <div style="width:1px;align-self:stretch;background:var(--hairline);"></div>
+          <div class="dice" id="cDieMon1"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+          <div class="dice" id="cDieMon2"><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span><span class="pip"></span></div>
+          <div class="dice-result"><div class="sum" id="cForceMon">–</div><div class="detail">Força da criatura</div></div>
+        </div>
+        <div class="row">
+          <button class="btn primary" id="attackRoundBtn" disabled>🎲 Jogar série de ataque</button>
+        </div>
+        <div id="combatOutcome"></div>
+        <hr class="divider">
+        <h3 style="margin-bottom:8px;">Registro da batalha</h3>
+        <div class="log" id="combatLog"></div>
+      </div>
+    </section>
+
+    <!-- MAGIA -->
+    <section id="tab-magia" class="hidden">
+      <div class="page-head">
+        <div class="eyebrow">O Uso da Magia</div>
+        <h1>Encantos escolhidos</h1>
+        <p>Distribua seus encantos disponíveis (igual ao seu índice de MAGIA inicial) entre as opções abaixo. Cada uso risca um encanto da lista.</p>
+      </div>
+      <div class="card" style="margin-bottom:18px;">
+        <div class="row" style="justify-content:space-between;">
+          <div><span class="tag">encantos restantes para distribuir</span></div>
+          <div class="badge-ouro" id="magiaRestante">0</div>
+        </div>
+      </div>
+      <div class="card" id="spellsCard"></div>
+    </section>
+
+    <!-- EQUIPAMENTO -->
+    <section id="tab-equip" class="hidden">
+      <div class="page-head">
+        <div class="eyebrow">Mochila do aventureiro</div>
+        <h1>Equipamento &amp; Ouro</h1>
+        <p>Registre tudo que encontrar pelo caminho. Espada, armadura de couro, lanterna e mochila fazem parte do equipamento inicial.</p>
+      </div>
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Ouro</h3>
+          <div class="row">
+            <button class="pill-btn" id="ouroMinus">–</button>
+            <div class="badge-ouro" id="ouroVal">0</div>
+            <button class="pill-btn" id="ouroPlus">+</button>
+            <input type="number" id="ouroCustom" placeholder="valor" style="width:90px;">
+            <button class="btn small" id="ouroAddCustom">Adicionar</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Adicionar item</h3>
+          <div class="row">
+            <input type="text" id="itemInput" placeholder="ex: chave enferrujada">
+            <button class="btn primary" id="itemAddBtn">Adicionar</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:18px;">
+        <h3>Itens carregados</h3>
+        <div class="equip-list" id="equipList"><div class="empty-state">Sua mochila está vazia.</div></div>
+      </div>
+    </section>
+
+    <!-- LIVRO & PROGRESSO -->
+    <section id="tab-livro" class="hidden">
+      <div class="page-head">
+        <div class="eyebrow">Sua cópia do livro</div>
+        <h1>Livro &amp; Progresso</h1>
+        <p>A história completa do livro está aqui — comece pela introdução e clique em "Começar Aventura". Navegue pelos parágrafos clicando nas escolhas em destaque.</p>
+      </div>
+
+      <div class="grid cols-2">
+        <div class="card">
+          <h3>Marcador de parágrafo</h3>
+          <p class="footnote" style="margin-top:-6px;margin-bottom:12px;">Digite o número do parágrafo e clique em "Ir para". Você também pode clicar nas escolhas azuis no texto para navegar. O app guarda seu histórico.</p>
+          <div class="row">
+            <input type="number" id="paraInput" min="1" placeholder="nº do parágrafo" style="max-width:160px;">
+            <button class="btn primary" id="paraGoBtn">Ir para</button>
+            <button class="btn small" id="paraBackBtn">↩ Voltar</button>
+          </div>
+          <div style="margin-top:14px;">
+            <span class="tag">parágrafo atual</span>
+            <div class="badge-ouro" id="paraCurrent" style="margin-top:6px;">–</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Caminho percorrido</h3>
+          <div class="log" id="paraHistory" style="max-height:180px;"><div class="empty-state">Nenhum parágrafo visitado ainda.</div></div>
+          <div class="row" style="margin-top:10px;">
+            <button class="btn small danger" id="paraResetBtn">Reiniciar caminho</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:18px;">
+        <h3>Storytelling — o livro embutido</h3>
+        <p class="footnote" style="margin-top:-6px;margin-bottom:12px;">O texto completo do livro está embutido no aplicativo. Navegue pelos parágrafos clicando nas escolhas ou usando o marcador acima.</p>
+        <div id="storyViewerWrap">
+          <div class="story-empty">Carregando texto do livro...</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <aside class="shortcuts" id="shortcutPanel"></aside>
+
+</div>
+
+<script>
+/* ============================ STATE ============================ */
+const STORAGE_KEY = 'cidadela-caos-ficha-v1';
+const SPELLS = [
+  {id:'copia', name:'Cópia de Criatura', desc:'Invoca uma réplica idêntica da criatura inimiga, sob seu comando.'},
+  {id:'percepcao', name:'Percepção Extra-Sensorial', desc:'Capta pensamentos e revela segredos ocultos — nem sempre confiável.'},
+  {id:'fogo', name:'Fogo', desc:'Conjura chamas para atacar ou erguer uma barreira protetora.'},
+  {id:'ourotolos', name:'Ouro dos Tolos', desc:'Transforma pedra em ouro ilusório, que volta ao normal depois.'},
+  {id:'ilusao', name:'Ilusão', desc:'Cria uma cena convincente para enganar os sentidos de um inimigo.'},
+  {id:'levitacao', name:'Levitação', desc:'Suspende objetos, criaturas ou você mesmo no ar.'},
+  {id:'sorte', name:'Sorte', desc:'Restaura metade do seu índice de Sorte Inicial. Pode ser lançado a qualquer momento, exceto em batalha.', recover:'sor'},
+  {id:'escudo', name:'Escudo', desc:'Ergue uma barreira invisível contra ataques físicos — não protege contra magia.'},
+  {id:'habilidade', name:'Habilidade', desc:'Restaura metade do seu índice de Habilidade Inicial. Não pode ser lançado em batalha.', recover:'hab'},
+  {id:'energia', name:'Energia', desc:'Restaura metade do seu índice de Energia Inicial. Pode ser lançado a qualquer momento.', recover:'ene'},
+  {id:'forca', name:'Força', desc:'Aumenta muito sua força física — arriscado de controlar quando exagerada.'},
+  {id:'fraqueza', name:'Fraqueza', desc:'Enfraquece uma criatura forte, tornando-a mais frágil em batalha.'},
+];
+
+function defaultState(){
+  return {
+    hab:{ini:null,cur:null},
+    ene:{ini:null,cur:null},
+    sor:{ini:null,cur:null},
+    mag:{ini:null},
+    ouro:0,
+    itens:['Espada', 'Armadura de couro', 'Lanterna', 'Mochila'],
+    spellCharges:{}, // id -> {total, left}
+    monsters:[], // {id,name,habIni,hab,eneIni,ene,active,dead}
+    paragraph:{current:null, history:[]},
+    log:[]
+  };
+}
+let state = load();
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return defaultState();
+    const parsed = JSON.parse(raw);
+    const d = defaultState();
+    const merged = Object.assign(d, parsed);
+    // Add default starting items if none saved (fresh adventure or old save)
+    if(!parsed.itens || parsed.itens.length === 0){
+      merged.itens = ['Espada', 'Armadura de couro', 'Lanterna', 'Mochila'];
+    }
+    return merged;
+  }catch(e){ return defaultState(); }
+}
+function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+/* ============================ DICE ============================ */
+function rollDie(){ return 1 + Math.floor(Math.random()*6); }
+
+function pipPattern(n){
+  // returns array of 9 booleans for a 3x3 grid representing pips for value n
+  const P = { center: 4, corners:[0,2,6,8], mid:[3,5] };
+  const g = new Array(9).fill(false);
+  if(n===1){ g[4]=true; }
+  if(n===2){ g[0]=true; g[8]=true; }
+  if(n===3){ g[0]=true; g[4]=true; g[8]=true; }
+  if(n===4){ g[0]=true; g[2]=true; g[6]=true; g[8]=true; }
+  if(n===5){ g[0]=true; g[2]=true; g[4]=true; g[6]=true; g[8]=true; }
+  if(n===6){ g[0]=true; g[2]=true; g[3]=true; g[5]=true; g[6]=true; g[8]=true; }
+  return g;
+}
+function renderDie(el, value){
+  const pips = el.querySelectorAll('.pip');
+  const pattern = pipPattern(value);
+  pips.forEach((p,i)=>{ p.style.opacity = pattern[i] ? '1':'0'; });
+}
+function animateDie(el){
+  el.classList.remove('rolling'); void el.offsetWidth; el.classList.add('rolling');
+}
+
+function rollDice(count, els){
+  const vals = [];
+  for(let i=0;i<count;i++){
+    const v = rollDie();
+    vals.push(v);
+    if(els && els[i]){ animateDie(els[i]); renderDie(els[i], v); }
+  }
+  return vals;
+}
+
+/* ============================ RENDER ============================ */
+function clamp(v, lo, hi){ return Math.max(lo, Math.min(hi==null?v:hi, v)); }
+
+function renderSideStats(){
+  const el = document.getElementById('sideStats');
+  const rows = [
+    {k:'hab', label:'Habilidade', cls:'hab'},
+    {k:'ene', label:'Energia', cls:'ene'},
+    {k:'sor', label:'Sorte', cls:'sor'},
+  ];
+  el.innerHTML = rows.map(r=>{
+    const s = state[r.k];
+    const ini = s.ini||0, cur = s.cur||0;
+    const pct = ini? clamp((cur/ini)*100,0,100) : 0;
+    return `<div class="stat-mini">
+      <div class="lbl"><span>${r.label}</span><b>${cur ?? '-'} / ${ini ?? '-'}</b></div>
+      <div class="bar ${r.cls}"><i style="width:${pct}%"></i></div>
+    </div>`;
+  }).join('') + `<div class="stat-mini">
+      <div class="lbl"><span>Magia</span><b>${spellsLeft()} / ${state.mag.ini ?? '-'}</b></div>
+      <div class="bar mag"><i style="width:${state.mag.ini? clamp((spellsLeft()/state.mag.ini)*100,0,100):0}%"></i></div>
+    </div>`;
+}
+
+function spellsLeft(){
+  const totalAssigned = Object.values(state.spellCharges).reduce((a,c)=>a+(c.total||0),0);
+  return (state.mag.ini||0) - totalAssigned;
+}
+function spellsRemainingCharges(){
+  return Object.values(state.spellCharges).reduce((a,c)=>a+(c.left||0),0);
+}
+
+function renderFicha(){
+  document.getElementById('hab_cur').textContent = state.hab.cur ?? '-';
+  document.getElementById('hab_ini').textContent = state.hab.ini ?? '-';
+  document.getElementById('ene_cur').textContent = state.ene.cur ?? '-';
+  document.getElementById('ene_ini').textContent = state.ene.ini ?? '-';
+  document.getElementById('sor_cur').textContent = state.sor.cur ?? '-';
+  document.getElementById('sor_ini').textContent = state.sor.ini ?? '-';
+  document.getElementById('mag_cur').textContent = spellsRemainingCharges();
+  document.getElementById('mag_ini').textContent = state.mag.ini ?? '-';
+}
+
+function renderEquip(){
+  document.getElementById('ouroVal').textContent = state.ouro;
+  const list = document.getElementById('equipList');
+  if(state.itens.length===0){
+    list.innerHTML = '<div class="empty-state">Sua mochila está vazia.</div>';
+  } else {
+    list.innerHTML = state.itens.map((it,i)=>`
+      <div class="equip-item"><span>${escapeHtml(it)}</span><button data-idx="${i}" class="rmItem">remover</button></div>
+    `).join('');
+    list.querySelectorAll('.rmItem').forEach(b=>b.addEventListener('click', ()=>{
+      state.itens.splice(parseInt(b.dataset.idx),1); save(); renderEquip();
+    }));
+  }
+}
+
+function renderSpells(){
+  const remaining = spellsLeft();
+  document.getElementById('magiaRestante').textContent = remaining;
+  const card = document.getElementById('spellsCard');
+  if(!state.mag.ini){
+    card.innerHTML = '<div class="empty-state">Role seus índices iniciais na Ficha de Aventuras para determinar quantos encantos pode escolher.</div>';
+    return;
+  }
+  card.innerHTML = SPELLS.map(sp=>{
+    const c = state.spellCharges[sp.id] || {total:0,left:0};
+    const canAdd = remaining>0;
+    return `<div class="spell ${c.left<=0 && c.total>0 ? 'empty':''}">
+      <div class="info">
+        <div class="sname">${sp.name}</div>
+        <div class="sdesc">${sp.desc}</div>
+      </div>
+      <div class="row" style="align-items:center;">
+        <div class="charges">${c.left} / ${c.total} usos</div>
+        <button class="pill-btn spellMinus" data-id="${sp.id}" ${c.total<=0?'disabled':''}>–</button>
+        <button class="pill-btn spellPlus" data-id="${sp.id}" ${!canAdd?'disabled':''}>+</button>
+        <button class="btn small" data-id="${sp.id}" data-use="1" ${c.left<=0?'disabled':''}>Usar</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  card.querySelectorAll('.spellPlus').forEach(b=>b.addEventListener('click', ()=>{
+    const id = b.dataset.id;
+    if(spellsLeft()<=0) return;
+    if(!state.spellCharges[id]) state.spellCharges[id] = {total:0,left:0};
+    state.spellCharges[id].total++; state.spellCharges[id].left++;
+    save(); renderSpells(); renderFicha(); renderSideStats();
+  }));
+  card.querySelectorAll('.spellMinus').forEach(b=>b.addEventListener('click', ()=>{
+    const id = b.dataset.id;
+    const c = state.spellCharges[id];
+    if(!c || c.total<=0) return;
+    if(c.left>0) c.left--; c.total--;
+    save(); renderSpells(); renderFicha(); renderSideStats();
+  }));
+  card.querySelectorAll('[data-use]').forEach(b=>b.addEventListener('click', ()=>{
+    const id = b.dataset.id;
+    const sp = SPELLS.find(s=>s.id===id);
+    const c = state.spellCharges[id];
+    if(!c || c.left<=0) return;
+    c.left--;
+    if(sp.recover){
+      const attr = state[sp.recover];
+      const bonus = Math.round(attr.ini/2);
+      attr.cur = clamp(attr.cur + bonus, 0, attr.ini);
+      logCombat(`Encanto de ${sp.name} lançado — ${sp.recover.toUpperCase()} restaurada para ${attr.cur}/${attr.ini}.`, 'neutral', true);
+    } else {
+      logCombat(`Encanto de ${sp.name} lançado.`, 'neutral', true);
+    }
+    save(); renderSpells(); renderFicha(); renderSideStats();
+  }));
+}
+
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+/* -------- monster list / combat -------- */
+function activeMonster(){ return state.monsters.find(m=>m.active); }
+
+function renderMonsters(){
+  const list = document.getElementById('monsterList');
+  if(state.monsters.length===0){
+    list.innerHTML = '<div class="empty-state">Nenhuma criatura registrada ainda.</div>';
+  } else {
+    list.innerHTML = state.monsters.map(m=>`
+      <div class="monster-card ${m.active?'active':''} ${m.dead?'dead':''}">
+        <div class="monster-head">
+          <div class="mname">${escapeHtml(m.name)} ${m.dead?'<span class=\"tag\">derrotado</span>':''}</div>
+          <div class="row">
+            ${!m.dead?`<button class="btn small" data-sel="${m.id}">${m.active?'Em combate':'Selecionar'}</button>`:''}
+            <button class="btn small danger" data-del="${m.id}">remover</button>
+          </div>
+        </div>
+        <div class="monster-vitals">
+          <span>HABILIDADE: <b>${m.hab}</b> / ${m.habIni}</span>
+          <span>ENERGIA: <b>${m.ene}</b> / ${m.eneIni}</span>
+        </div>
+      </div>
+    `).join('');
+    list.querySelectorAll('[data-sel]').forEach(b=>b.addEventListener('click', ()=>{
+      state.monsters.forEach(m=>m.active = (m.id===b.dataset.sel));
+      save(); renderMonsters(); renderCombatHead();
+    }));
+    list.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click', ()=>{
+      state.monsters = state.monsters.filter(m=>m.id!==b.dataset.del);
+      save(); renderMonsters(); renderCombatHead();
+    }));
+  }
+}
+
+function renderCombatHead(){
+  const m = activeMonster();
+  const nameEl = document.getElementById('activeMonsterName');
+  const btn = document.getElementById('attackRoundBtn');
+  if(m){
+    nameEl.textContent = `${m.name} (HAB ${m.hab}/${m.habIni} · ENE ${m.ene}/${m.eneIni})`;
+    btn.disabled = false;
+  } else {
+    nameEl.textContent = 'selecione uma criatura';
+    btn.disabled = true;
+  }
+}
+
+function logCombat(text, cls, skipMonster){
+  const entry = {text, cls, ts: Date.now()};
+  state.log.unshift(entry);
+  state.log = state.log.slice(0,80);
+  const log = document.getElementById('combatLog');
+  const div = document.createElement('div');
+  div.className = 'entry ' + (cls||'');
+  div.textContent = text;
+  log.prepend(div);
+}
+function renderLogFull(){
+  const log = document.getElementById('combatLog');
+  log.innerHTML = '';
+  [...state.log].reverse().forEach(e=>{
+    const div = document.createElement('div');
+    div.className = 'entry ' + (e.cls||'');
+    div.textContent = e.text;
+    log.prepend(div);
+  });
+}
+
+/* ============================ TABS ============================ */
+document.getElementById('tabs').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-tab]');
+  if(!btn) return;
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['manual','ficha','combate','magia','equip','livro'].forEach(t=>{
+    document.getElementById('tab-'+t).classList.toggle('hidden', t!==btn.dataset.tab);
+  });
+  // Show shortcut panel only on livro tab
+  const panel = document.getElementById('shortcutPanel');
+  panel.classList.toggle('open', btn.dataset.tab === 'livro');
+  if(btn.dataset.tab === 'livro') renderShortcuts();
+});
+
+/* ============================ FICHA LOGIC ============================ */
+document.getElementById('rollAllBtn').addEventListener('click', ()=>{
+  const d1 = rollDie();
+  const habIni = d1 + 6;
+  const eDice = [rollDie(), rollDie()];
+  const eneIni = eDice[0]+eDice[1] + 12;
+  const sDie = rollDie();
+  const sorIni = sDie + 6;
+  const mDice = [rollDie(), rollDie()];
+  const magIni = mDice[0]+mDice[1] + 6;
+
+  state.hab = {ini:habIni, cur:habIni};
+  state.ene = {ini:eneIni, cur:eneIni};
+  state.sor = {ini:sorIni, cur:sorIni};
+  state.mag = {ini:magIni};
+  state.spellCharges = {};
+  save();
+  document.getElementById('rollAllResult').innerHTML = `
+    <div class="luck-result good" style="margin-top:14px;">
+      HABILIDADE ${habIni} · ENERGIA ${eneIni} · SORTE ${sorIni} · MAGIA ${magIni}
+    </div>`;
+  renderAll();
+});
+
+document.querySelectorAll('.pill-btn[data-adj]').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    const attr = b.dataset.adj;
+    const d = parseInt(b.dataset.d);
+    const s = state[attr];
+    if(s.ini==null) return;
+    s.cur = clamp(s.cur + d, 0, s.ini);
+    save(); renderFicha(); renderSideStats(); renderShortcuts();
+  });
+});
+
+document.getElementById('roll1Btn').addEventListener('click', ()=>{
+  const [v] = rollDice(1, [document.getElementById('freeDie1')]);
+  renderDie(document.getElementById('freeDie2'), 0);
+  document.getElementById('freeSum').textContent = v;
+  document.getElementById('freeDetail').textContent = '1 dado';
+});
+document.getElementById('roll2Btn').addEventListener('click', ()=>{
+  const els = [document.getElementById('freeDie1'), document.getElementById('freeDie2')];
+  const vals = rollDice(2, els);
+  document.getElementById('freeSum').textContent = vals[0]+vals[1];
+  document.getElementById('freeDetail').textContent = `${vals[0]} + ${vals[1]}`;
+});
+
+document.getElementById('generalLuckBtn').addEventListener('click', ()=>{
+  if(!state.sor.ini){ alert('Role seus índices iniciais primeiro.'); return; }
+  if(state.sor.cur<=0){ alert('Sua Sorte está esgotada.'); return; }
+  const vals = [rollDie(), rollDie()];
+  const sum = vals[0]+vals[1];
+  const lucky = sum <= state.sor.cur;
+  state.sor.cur = clamp(state.sor.cur - 1, 0, state.sor.ini);
+  save(); renderFicha(); renderSideStats();
+  document.getElementById('generalLuckResult').innerHTML = `
+    <div class="luck-result ${lucky?'good':'bad'}" style="margin-top:10px;">
+      🎲 ${vals[0]} + ${vals[1]} = ${sum} — ${lucky? 'Você TEVE sorte!' : 'Você NÃO teve sorte.'}
+      <div class="footnote" style="margin-top:4px;">Sorte atual: ${state.sor.cur}/${state.sor.ini}</div>
+    </div>`;
+});
+
+/* ============================ EQUIPAMENTO LOGIC ============================ */
+document.getElementById('ouroMinus').addEventListener('click', ()=>{ state.ouro=Math.max(0,state.ouro-1); save(); renderEquip(); });
+document.getElementById('ouroPlus').addEventListener('click', ()=>{ state.ouro++; save(); renderEquip(); });
+document.getElementById('ouroAddCustom').addEventListener('click', ()=>{
+  const v = parseInt(document.getElementById('ouroCustom').value);
+  if(!isNaN(v)){ state.ouro = Math.max(0, state.ouro+v); save(); renderEquip(); document.getElementById('ouroCustom').value=''; }
+});
+document.getElementById('itemAddBtn').addEventListener('click', ()=>{
+  const inp = document.getElementById('itemInput');
+  const v = inp.value.trim();
+  if(v){ state.itens.push(v); inp.value=''; save(); renderEquip(); }
+});
+document.getElementById('itemInput').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter') document.getElementById('itemAddBtn').click();
+});
+
+/* ============================ COMBATE LOGIC ============================ */
+document.getElementById('addMonsterBtn').addEventListener('click', ()=>{
+  const name = document.getElementById('mName').value.trim() || 'Criatura';
+  const hab = parseInt(document.getElementById('mHab').value) || 6;
+  const ene = parseInt(document.getElementById('mEne').value) || 6;
+  const m = { id: 'm'+Date.now()+Math.random().toString(16).slice(2), name, habIni:hab, hab, eneIni:ene, ene, active:false, dead:false };
+  if(state.monsters.every(x=>!x.active)) m.active = true;
+  state.monsters.push(m);
+  save(); renderMonsters(); renderCombatHead();
+  document.getElementById('mName').value='';
+});
+
+let combatBusy = false;
+document.getElementById('attackRoundBtn').addEventListener('click', ()=>{
+  if(combatBusy) return;
+  const m = activeMonster();
+  if(!m || m.dead) return;
+  if(!state.hab.ini){ alert('Role seus índices iniciais primeiro.'); return; }
+  combatBusy = true;
+
+  const yEls = [document.getElementById('cDieYou1'), document.getElementById('cDieYou2')];
+  const mEls = [document.getElementById('cDieMon1'), document.getElementById('cDieMon2')];
+  const yVals = rollDice(2, yEls);
+  const mVals = rollDice(2, mEls);
+  const forceYou = yVals[0]+yVals[1] + state.hab.cur;
+  const forceMon = mVals[0]+mVals[1] + m.hab;
+  document.getElementById('cForceYou').textContent = forceYou;
+  document.getElementById('cForceMon').textContent = forceMon;
+
+  const outcome = document.getElementById('combatOutcome');
+  let html = `<div class="footnote">Você: ${yVals[0]}+${yVals[1]}+${state.hab.cur} = <b style="color:var(--parch)">${forceYou}</b> &nbsp;|&nbsp; ${m.name}: ${mVals[0]}+${mVals[1]}+${m.hab} = <b style="color:var(--parch)">${forceMon}</b></div>`;
+
+  if(forceYou === forceMon){
+    logCombat(`Empate (${forceYou} x ${forceMon}) — ambos se defenderam. Jogue novamente.`, 'neutral');
+    html += `<div class="luck-result" style="margin-top:10px;border-color:var(--gold);">Forças iguais — vocês se defenderam dos golpes. Jogue a série novamente.</div>`;
+    outcome.innerHTML = html;
+    combatBusy = false;
+  } else if(forceYou > forceMon){
+    const atkNames = ['acertou em cheio', 'atingiu com um golpe brutal', 'cravou a espada', 'desferiu um golpe preciso', 'acertou com violência', 'feriu profundamente'];
+    const verb = atkNames[Math.floor(Math.random()*atkNames.length)];
+    logCombat(`⚔ ${verb} ${m.name} (${forceYou} x ${forceMon}).`, 'hit-you');
+    applyDamage(m, 2, false, true);
+    html += `<div class="luck-result good" style="margin-top:10px;">${m.name} perdeu 2 ENERGIA (${m.ene}/${m.eneIni}).</div>`;
+    if(state.sor.cur>0){
+      html += `<div class="row" style="margin-top:6px;"><button class="btn small" id="dmgLuck" ${state.sor.cur<=0?'disabled':''}>Testar a Sorte para causar mais dano</button></div>`;
+    }
+    outcome.innerHTML = html;
+    if(state.sor.cur>0){
+      document.getElementById('dmgLuck')?.addEventListener('click', ()=>{ luckDamage(m, true); combatBusy=false; });
+    }
+    combatBusy = false;
+  } else {
+    const atkNames = ['acertou você com um golpe brutal', 'atingiu você com sua arma', 'feriu você profundamente', 'acertou em cheio', 'cravou as garras em você', 'desferiu um golpe terrível'];
+    const verb = atkNames[Math.floor(Math.random()*atkNames.length)];
+    logCombat(`⚔ ${m.name} ${verb} (${forceMon} x ${forceYou}).`, 'hit-monster');
+    applyDamage(m, 2, true, true);
+    html += `<div class="luck-result bad" style="margin-top:10px;">Você perdeu 2 ENERGIA (${state.ene.cur}/${state.ene.ini}).</div>`;
+    if(state.sor.cur>0){
+      html += `<div class="row" style="margin-top:6px;"><button class="btn small" id="dmgLuckYou" ${state.sor.cur<=0?'disabled':''}>Testar a Sorte para reduzir dano</button></div>`;
+    }
+    outcome.innerHTML = html;
+    if(state.sor.cur>0){
+      document.getElementById('dmgLuckYou')?.addEventListener('click', ()=>{ luckDamage(m, false); combatBusy=false; });
+    }
+    combatBusy = false;
+  }
+  save(); renderFicha(); renderSideStats(); renderMonsters(); renderCombatHead();
+});
+
+function luckDamage(m, dealtByYou){
+  const vals = [rollDie(), rollDie()];
+  const sum = vals[0]+vals[1];
+  const lucky = sum <= state.sor.cur;
+  state.sor.cur = clamp(state.sor.cur-1, 0, state.sor.ini);
+  if(dealtByYou){
+    const amount = lucky ? 4 : 1;
+    applyDamage(m, amount, false, false);
+    logCombat(`Sorte (${sum}) ${lucky?'boa':'ruim'} — ${m.name} sofreu ${amount} ponto(s) de ENERGIA.`, lucky?'hit-you':'neutral');
+  } else {
+    const amount = lucky ? 1 : 3;
+    applyDamage(m, amount, true, false);
+    logCombat(`Sorte (${sum}) ${lucky?'boa':'ruim'} — você sofreu ${amount} ponto(s) de ENERGIA.`, lucky?'neutral':'hit-monster');
+  }
+  document.getElementById('combatOutcome').innerHTML += `<div class="luck-result ${lucky?'good':'bad'}" style="margin-top:10px;">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Você teve sorte!':'Você não teve sorte.'}</div>`;
+  save(); renderFicha(); renderSideStats(); renderMonsters(); renderCombatHead();
+}
+
+function applyDamage(m, amount, toYou, logIt){
+  if(toYou){
+    state.ene.cur = clamp(state.ene.cur - amount, 0, state.ene.ini);
+    if(logIt) logCombat(`Você perdeu ${amount} ponto(s) de ENERGIA (${state.ene.cur}/${state.ene.ini}).`, 'hit-monster');
+    if(state.ene.cur<=0){
+      logCombat(`Você foi derrotado por ${m.name}...`, 'death');
+    }
+  } else {
+    m.ene = clamp(m.ene - amount, 0, m.eneIni);
+    if(logIt) logCombat(`${m.name} perdeu ${amount} ponto(s) de ENERGIA (${m.ene}/${m.eneIni}).`, 'hit-you');
+    if(m.ene<=0){
+      m.dead = true; m.active = false;
+      logCombat(`${m.name} foi derrotado!`, 'victory');
+      const next = state.monsters.find(x=>!x.dead);
+      if(next) next.active = true;
+    }
+  }
+  save();
+}
+
+document.getElementById('fleeBtn').addEventListener('click', ()=>{
+  const m = activeMonster();
+  if(!m){ alert('Nenhuma criatura ativa para fugir.'); return; }
+  applyDamage(m, 2, true, false);
+  logCombat(`Você fugiu de ${m.name} e sofreu 2 pontos de ENERGIA na fuga.`, 'hit-monster');
+  document.getElementById('fleeResult').innerHTML = `<div class="footnote" style="margin-top:10px;">Você pode testar a Sorte abaixo para tentar reduzir este ferimento.</div>
+    <div class="row" style="margin-top:8px;"><button class="btn small" id="fleeLuck" ${state.sor.cur<=0?'disabled':''}>Testar a Sorte</button></div>`;
+  save(); renderFicha(); renderSideStats(); renderMonsters(); renderCombatHead();
+  const btn = document.getElementById('fleeLuck');
+  if(btn) btn.addEventListener('click', ()=>{
+    const vals=[rollDie(),rollDie()]; const sum=vals[0]+vals[1];
+    const lucky = sum<=state.sor.cur;
+    state.sor.cur = clamp(state.sor.cur-1,0,state.sor.ini);
+    if(lucky){ state.ene.cur = clamp(state.ene.cur+1,0,state.ene.ini); }
+    else { state.ene.cur = clamp(state.ene.cur-1,0,state.ene.ini); }
+    logCombat(`Sorte na fuga (${sum}) ${lucky?'boa — recuperou 1 ponto':'ruim — perdeu 1 ponto extra'} de ENERGIA.`, lucky?'neutral':'hit-monster');
+    document.getElementById('fleeResult').innerHTML += `<div class="luck-result ${lucky?'good':'bad'}" style="margin-top:10px;">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Você teve sorte!':'Você não teve sorte.'}</div>`;
+    save(); renderFicha(); renderSideStats();
+  });
+});
+
+/* ============================ LIVRO & PROGRESSO ============================ */
+function renderParagraph(){
+  document.getElementById('paraCurrent').textContent = state.paragraph.current ?? '–';
+  const hist = document.getElementById('paraHistory');
+  if(state.paragraph.history.length===0){
+    hist.innerHTML = '<div class="empty-state">Nenhum parágrafo visitado ainda.</div>';
+  } else {
+    hist.innerHTML = '';
+    state.paragraph.history.forEach(n=>{
+      const div = document.createElement('div');
+      div.className = 'entry neutral';
+      div.style.cursor = 'pointer';
+      div.textContent = `§ ${n}`;
+      div.title = 'Clique para voltar a este parágrafo';
+      div.addEventListener('click', ()=>{
+        goToParagraph(n, false);
+      });
+      hist.prepend(div);
+    });
+  }
+  document.getElementById('paraBackBtn').disabled = state.paragraph.history.length<2;
+}
+
+document.getElementById('paraGoBtn').addEventListener('click', ()=>{
+  const v = parseInt(document.getElementById('paraInput').value);
+  if(isNaN(v) || v<1) return;
+  goToParagraph(v);
+  document.getElementById('paraInput').value = '';
+});
+document.getElementById('paraInput').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter') document.getElementById('paraGoBtn').click();
+});
+document.getElementById('paraBackBtn').addEventListener('click', ()=>{
+  if(state.paragraph.history.length<2) return;
+  state.paragraph.history.pop();
+  const n = state.paragraph.history[state.paragraph.history.length-1];
+  goToParagraph(n, false);
+});
+document.getElementById('paraResetBtn').addEventListener('click', ()=>{
+  if(confirm('Apagar todo o caminho percorrido nesta aventura?')){
+    state.paragraph = {current:null, history:[]};
+    save(); renderParagraph(); renderStory();
+  }
+});
+
+/* ============================ STORY READER ============================ */
+function goToParagraph(n, pushHistory=true){
+  if(!n || n<1) return;
+  state.paragraph.current = n;
+  if(pushHistory){
+    state.paragraph.history.push(n);
+    state.paragraph.history = state.paragraph.history.slice(-100);
+  }
+  save(); renderParagraph(); renderStory();
+}
+
+function renderStory(){
+  const wrap = document.getElementById('storyViewerWrap');
+  const n = state.paragraph.current;
+  
+  if(!n || !BOOK_PARAGRAPHS || !BOOK_PARAGRAPHS[n]){
+    let intro = '<div class="story-intro">';
+    BOOK_INTRO.split(/\n\n+/).forEach(p => {
+      p = p.trim();
+      if(p) intro += '<p>' + p + '</p>';
+    });
+    intro += '<button class="start-btn" onclick="goToParagraph(1)">⚔ Começar Aventura</button>';
+    intro += '</div>';
+    wrap.innerHTML = `<div class="story-content">${intro}</div>`;
+    return;
+  }
+  
+  // Extract ALL paragraph references from the narrative text
+  let text = BOOK_PARAGRAPHS[n];
+  
+  // Normalize line breaks
+  text = text.replace(/\r\n?/g, '\n');
+  
+  // Step 1: extract standalone choice lines
+  const lines = text.split('\n');
+  
+  // Find all choice line indices
+  const allChoiceLines = [];
+  for(let i = 0; i < lines.length; i++){
+    const t = lines[i].trim();
+    if(t.match(/^(?:V[áa] para|Volte para|Vou para) (\d+)[\.]?$/)){
+      allChoiceLines.push(i);
+    }
+  }
+  
+  // Group consecutive choices
+  const choiceGroups = [];
+  let curGroup = null;
+  for(let ci = 0; ci < allChoiceLines.length; ci++){
+    const idx = allChoiceLines[ci];
+    if(!curGroup || idx !== curGroup.lastIdx + 1){
+      curGroup = { firstIdx: idx, lastIdx: idx, indices: [idx] };
+      choiceGroups.push(curGroup);
+    } else {
+      curGroup.lastIdx = idx;
+      curGroup.indices.push(idx);
+    }
+  }
+  
+  const choices = [];
+  const choiceLineSet = new Set(allChoiceLines);
+  let prevGlobalChoiceLine = -1;  // last choice line processed across all groups
+  
+  for(const group of choiceGroups){
+    const { firstIdx, lastIdx, indices } = group;
+    
+    // Find the nearest separator line above the group
+    let sepIdx = -1;
+    for(let j = firstIdx - 1; j >= 0; j--){
+      const prev = lines[j].trim();
+      if(!prev) break;
+      if(/[:]\s*$/.test(prev)){
+        sepIdx = j;
+        break;
+      }
+      if(/^(Por|Qual|Que)\b/.test(prev) && /[?]\s*$/.test(prev)){
+        sepIdx = j;
+        break;
+      }
+    }
+    
+    if(sepIdx >= 0 && indices.length > 1 && lastIdx - firstIdx === indices.length - 1){
+      // Grouped format: [separator] [option lines] [consecutive choices]
+      const optLines = [];
+      for(let j = sepIdx + 1; j < firstIdx; j++){
+        const l = lines[j].trim();
+        if(l && !/[:]\s*$/.test(l)) optLines.push(l);
+      }
+      for(let gi = 0; gi < indices.length; gi++){
+        const optIdx = optLines.length - 1 - gi;
+        const desc = optIdx >= 0 ? optLines[optIdx] : '';
+        const para = lines[indices[gi]].trim().match(/^(?:V[áa] para|Volte para|Vou para) (\d+)[\.]?$/)[1];
+        choices.push({ desc, para });
+      }
+    } else if(sepIdx >= 0) {
+      // Interleaved format: each choice preceded by its own lines
+      for(let gi = 0; gi < indices.length; gi++){
+        const idx = indices[gi];
+        const startBoundary = prevGlobalChoiceLine >= 0 ? prevGlobalChoiceLine : sepIdx;
+        
+        const m = lines[idx].trim().match(/^(?:V[áa] para|Volte para|Vou para) (\d+)[\.]?$/);
+        const paraNum = m[1];
+        let optLines = [];
+        for(let j = startBoundary + 1; j < idx; j++){
+          const prev = lines[j].trim();
+          if(!prev) continue;
+          if(choiceLineSet.has(j)) continue;
+          optLines.push(prev);
+        }
+        choices.push({ desc: optLines.join(' '), para: paraNum });
+        prevGlobalChoiceLine = idx;
+      }
+    } else {
+      // No separator found — don't extract standalone, let inline/EOL handle
+      for(const idx of indices) choiceLineSet.delete(idx);
+    }
+  }
+  
+  // cleanLines = all lines except standalone choice lines
+  const cleanLines = [];
+  for(let i = 0; i < lines.length; i++){
+    if(!choiceLineSet.has(i)){
+      cleanLines.push(lines[i]);
+    }
+  }
+  
+  // Step 2: extract ALL "vá/volte para X" references from the narrative
+  // This handles: parenthetical, mid-sentence, end-of-line, split-line
+  let narText = cleanLines.join('\n');
+  const inlineRefs = [];
+
+  // Join split-line references: "volte para\n96" or "volte\npara 96" to "volte para 96"
+  narText = narText.replace(/(v[áa]|volte)\s+para\s*\n+\s*(\d+)/gi, '$1 para $2');
+  narText = narText.replace(/(v[áa]|volte)\s*\n+\s*para\s+(\d+)/gi, '$1 para $2');
+
+  // Single left-to-right pass through workingText, cleaning after each match
+  let workingText = narText;
+  const refRegex = /\(?\s*(v[áa]|volte)\s+para\s+(\d+)\s*\)?[\.!?]?(?=[\s,.;:!?)]|$)/gi;
+
+  let prevOffset = 0;
+  let match;
+  while ((match = refRegex.exec(workingText)) !== null) {
+    const fullMatch = match[0];
+    const action = match[1].toLowerCase();
+    const paraNum = match[2];
+    const offset = match.index;
+
+    // Context limited to text between previous match and this one
+    const before = workingText.slice(prevOffset, offset);
+    const trimmedBefore = before.trim();
+
+    let ctx = '';
+    // Strip trailing punctuation from trimmedBefore so $ anchored regex can match
+    const cleanPrefix = trimmedBefore.replace(/[.,;:!?]+\s*$/, '');
+    const ctxMatch = cleanPrefix.match(/[.,;:!?]\s+([^.,;:!?]+)$/);
+    if (ctxMatch) {
+      ctx = ctxMatch[1].trim();
+    } else {
+      // No sentence boundary - take last clause split by punctuation
+      const clauses = cleanPrefix.split(/[.,;:!?]+/);
+      ctx = clauses[clauses.length - 1].trim();
+    }
+    ctx = ctx.replace(/^(ou|e|,)\s+/i, '').trim();
+
+    const type = action === 'volte' ? 'volte' : 'va';
+    inlineRefs.push({ desc: ctx, para: paraNum, type });
+
+    // Remove this match so context for next match doesn't include it
+    workingText = workingText.slice(0, offset) + workingText.slice(offset + fullMatch.length);
+    refRegex.lastIndex = offset;
+    prevOffset = offset;
+  }
+
+  narText = workingText;
+
+  // Step 3: merge standalone choices with inline refs
+  // Standalone choices already have desc from step 1
+  // For inline refs, clean up the desc
+  inlineRefs.forEach(ref => {
+    let desc = ref.desc
+      .replace(/^(ou|e|,)\s+/i, '')
+      .replace(/[,\s]+$/, '')
+      .trim();
+    // Capitalize first letter
+    if(desc) desc = desc.charAt(0).toUpperCase() + desc.slice(1);
+    // Only add if not empty (avoid duplicate empty choices)
+    const arrow = ref.type === 'volte' ? '← Voltar' : '→ Ir';
+    choices.push({ desc, para: ref.para, arrow });
+  });
+  
+  // Clean up narrative: collapse intraword newlines to spaces, fix punctuation artifacts
+  narText = narText
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/(?<=\S)\n(?=\S)/g, ' ')    // single newline between words → space
+    .replace(/[ \t]{2,}/g, ' ')          // collapse multiple spaces/tabs
+    .replace(/ +([.,;!?])/g, '$1')        // space before punctuation
+    .replace(/([.,;!?])\s+(?=[.,;!?])/g, '$1 ')  // double punctuation
+    .trim();
+  
+  // Build narrative HTML
+  narText = narText
+    // Monster name + full stat block
+    .replace(/^([A-Z][A-Z\sÁÉÍÓÚÂÊÎÔÛÃÕÇ\-]+)\n\s*(HABILIDADE \d+\s*\n?\s*ENERGIA \d+)/gm, '<span class="monster-stat"><b>$1</b><br>$2</span>')
+    // HABILIDADE + ENERGIA on same/adjacent lines
+    .replace(/(HABILIDADE \d+\s*\n?\s*ENERGIA \d+)/g, '<span class="monster-stat">$1</span>')
+    // Standalone HABILIDADE or ENERGIA lines
+    .replace(/^(HABILIDADE \d+)$/gm, '<span class="monster-stat">$1</span>')
+    .replace(/^(ENERGIA \d+)$/gm, '<span class="monster-stat">$1</span>');
+  
+  let narHtml = narText.split(/\n\n+/).map(p => {
+    p = p.trim();
+    if(!p) return '';
+    p = p.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    p = p.replace(/\n/g, '<br>');
+    return '<p>' + p + '</p>';
+  }).join('');
+  
+  // Build choices HTML
+  let choHtml = '';
+  if(choices.length){
+    // Remove duplicates by para number (prefer longer/more descriptive)
+    const unique = new Map();
+    choices.forEach(ch => {
+      if(!unique.has(ch.para)){
+        unique.set(ch.para, ch);
+      } else {
+        const existing = unique.get(ch.para);
+        if(ch.desc && (!existing.desc || ch.desc.length > existing.desc.length)){
+          unique.set(ch.para, ch);
+        }
+      }
+    });
+    choHtml = Array.from(unique.values()).map(ch => {
+      const label = ch.desc ? escapeHtml(ch.desc) : '';
+      const arrow = ch.arrow || (/volte/i.test(ch.type || '') ? '← Voltar' : '→ Ir');
+      return `<div class="choice" data-para="${ch.para}">
+        ${label ? `<span class="choice-label">${label}</span>` : ''}
+        <span class="choice-action">${arrow} para §${ch.para}</span>
+      </div>`;
+    }).join('');
+    choHtml = '<div class="story-choices">' + choHtml + '</div>';
+  }
+  
+  const body = narHtml + choHtml;
+  
+  wrap.innerHTML = `
+    <div class="story-toolbar">
+      <span class="story-para-num">Parágrafo <b>${n}</b></span>
+      <div class="story-nav">
+        <button class="btn small" id="storyPrevBtn" ${state.paragraph.history.length<2?'disabled':''} onclick="if(state.paragraph.history.length>=2){state.paragraph.history.pop();const p=state.paragraph.history[state.paragraph.history.length-1];goToParagraph(p,false)}">↩ Anterior</button>
+      </div>
+    </div>
+    <div class="story-content">${body}</div>`;
+  
+  wrap.querySelectorAll('[data-para]').forEach(el=>{
+    el.addEventListener('click', (e)=>{
+      e.preventDefault();
+      goToParagraph(parseInt(el.dataset.para));
+    });
+  });
+}
+
+
+/* ============================ SHORTCUT PANEL ============================ */
+function renderShortcuts(){
+  const panel = document.getElementById('shortcutPanel');
+  if(!panel.classList.contains('open')) return;
+  const mkStat = (label, key) => {
+    const s = state[key];
+    const cur = s?.cur ?? '-', ini = s?.ini ?? '-';
+    return `<div class="sc-stat-row"><span>${label}</span><span class="sc-stat-val">${cur} / ${ini}</span>
+      <button class="pill-btn" data-adj="${key}" data-d="-1" ${ini==null||ini===0?'disabled':''}>–</button>
+      <button class="pill-btn" data-adj="${key}" data-d="1" ${ini==null||ini===0?'disabled':''}>+</button></div>`;
+  };
+  panel.innerHTML = `
+    <div class="shortcut-card">
+      <h4><span class="sc-num">01</span> Testar a Sorte</h4>
+      <div class="sc-row" style="justify-content:space-between;font-size:11px;font-family:'JetBrains Mono',monospace;color:var(--parch-dim);">
+        <span>Sorte: <b style="color:var(--parch)">${state.sor.cur ?? '-'}</b> / ${state.sor.ini ?? '-'}</span>
+        <button class="sc-btn primary" id="scLuckBtn" ${(!state.sor.ini || state.sor.cur<=0)?'disabled':''}>🎲 Testar</button>
+      </div>
+      <div id="scLuckResult"></div>
+    </div>
+    <div class="shortcut-card">
+      <h4><span class="sc-num">02</span> Atributos</h4>
+      <div class="sc-stats">
+        ${mkStat('HABILIDADE','hab')}
+        ${mkStat('ENERGIA','ene')}
+        ${mkStat('SORTE','sor')}
+        <div class="sc-stat-row"><span>MAGIA</span><span class="sc-stat-val">${spellsLeft()} / ${state.mag.ini ?? '-'}</span><span class="tag" style="font-size:9px;">encantos</span></div>
+      </div>
+    </div>
+    <div class="shortcut-card">
+      <h4><span class="sc-num">03</span> Batalhas</h4>
+      <div id="scCombatBody"></div>
+    </div>
+    <div class="shortcut-card">
+      <h4><span class="sc-num">04</span> Magias</h4>
+      <div id="scMagicBody"></div>
+    </div>
+    <div class="shortcut-card">
+      <h4><span class="sc-num">05</span> Inventário</h4>
+      <div id="scInvBody"></div>
+    </div>
+  `;
+
+  // ---- luck ----
+  document.getElementById('scLuckBtn')?.addEventListener('click', ()=>{
+    if(!state.sor.ini || state.sor.cur<=0) return;
+    const vals = [rollDie(), rollDie()];
+    const sum = vals[0]+vals[1];
+    const lucky = sum <= state.sor.cur;
+    state.sor.cur = clamp(state.sor.cur - 1, 0, state.sor.ini);
+    save(); renderFicha(); renderSideStats(); renderShortcuts();
+    document.getElementById('scLuckResult').innerHTML = `<div class="sc-result ${lucky?'good':'bad'}">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Você TEVE sorte!':'Você NÃO teve sorte.'} <span style="opacity:.6">(${state.sor.cur}/${state.sor.ini})</span></div>`;
+  });
+
+  renderScCombat();
+  renderScMagic();
+  renderScInventory();
+}
+
+function renderScCombat(){
+  const body = document.getElementById('scCombatBody');
+  const m = activeMonster();
+  if(m && !m.dead){
+    body.innerHTML = `
+      <div class="sc-monster">${escapeHtml(m.name)} — HAB <b>${m.hab}</b>/${m.habIni} · ENE <b>${m.ene}</b>/${m.eneIni}</div>
+      <div class="sc-row">
+        <button class="sc-btn primary" id="scAttackBtn">⚔ Atacar</button>
+        <button class="sc-btn danger" id="scFleeBtn">Fugir</button>
+        <button class="sc-btn" id="scMonsterDmg" style="flex:0;font-size:10px;">−1 ENE</button>
+      </div>
+      <div id="scCombatResult"></div>
+    `;
+    document.getElementById('scAttackBtn')?.addEventListener('click', ()=>{
+      if(combatBusy) return;
+      if(!state.hab.ini){ alert('Role seus índices primeiro.'); return; }
+      combatBusy = true;
+      const yVals = [rollDie(), rollDie()];
+      const mVals = [rollDie(), rollDie()];
+      const forceYou = yVals[0]+yVals[1] + state.hab.cur;
+      const forceMon = mVals[0]+mVals[1] + m.hab;
+      let html = `<div class="sc-result neutral">Você ${yVals[0]}+${yVals[1]}+${state.hab.cur}=${forceYou} · ${escapeHtml(m.name)} ${mVals[0]}+${mVals[1]}+${m.hab}=${forceMon}</div>`;
+      if(forceYou === forceMon){
+        logCombat(`Empate (${forceYou} x ${forceMon}) — ambos se defenderam. Jogue novamente.`, 'neutral');
+        html += `<div class="sc-result neutral" style="margin-top:4px;">Empate — ambos se defenderam. Ataque novamente.</div>`;
+        document.getElementById('scCombatResult').innerHTML = html;
+        combatBusy = false;
+      } else if(forceYou > forceMon){
+        const atkNames = ['acertou em cheio', 'atingiu com um golpe brutal', 'cravou a espada', 'desferiu um golpe preciso', 'acertou com violência', 'feriu profundamente'];
+        const verb = atkNames[Math.floor(Math.random()*atkNames.length)];
+        logCombat(`⚔ ${verb} ${m.name} (${forceYou} x ${forceMon}).`, 'hit-you');
+        applyDamage(m,2,false,true);
+        html += `<div class="sc-result good" style="margin-top:4px;">${escapeHtml(m.name)} perdeu 2 ENERGIA (${m.ene}/${m.eneIni}).</div>`;
+        if(state.sor.cur>0){
+          html += `<div class="sc-row" style="margin-top:4px;"><button class="sc-btn small" id="scDmgLuck">Testar Sorte (+dano)</button></div>`;
+          document.getElementById('scCombatResult').innerHTML = html;
+          document.getElementById('scDmgLuck')?.addEventListener('click', ()=>{ scLuckDamage(m,true); combatBusy=false; });
+        } else {
+          document.getElementById('scCombatResult').innerHTML = html;
+        }
+        combatBusy = false;
+      } else {
+        const atkNames = ['acertou você com um golpe brutal', 'atingiu você com sua arma', 'feriu você profundamente', 'acertou em cheio', 'cravou as garras em você', 'desferiu um golpe terrível'];
+        const verb = atkNames[Math.floor(Math.random()*atkNames.length)];
+        logCombat(`⚔ ${m.name} ${verb} (${forceMon} x ${forceYou}).`, 'hit-monster');
+        applyDamage(m,2,true,true);
+        html += `<div class="sc-result bad" style="margin-top:4px;">Você perdeu 2 ENERGIA (${state.ene.cur}/${state.ene.ini}).</div>`;
+        if(state.sor.cur>0){
+          html += `<div class="sc-row" style="margin-top:4px;"><button class="sc-btn small" id="scDmgLuckYou">Testar Sorte (−dano)</button></div>`;
+          document.getElementById('scCombatResult').innerHTML = html;
+          document.getElementById('scDmgLuckYou')?.addEventListener('click', ()=>{ scLuckDamage(m,false); combatBusy=false; });
+        } else {
+          document.getElementById('scCombatResult').innerHTML = html;
+        }
+        combatBusy = false;
+      }
+      save(); renderFicha(); renderSideStats(); renderMonsters(); renderCombatHead(); renderShortcuts();
+    });
+    document.getElementById('scFleeBtn')?.addEventListener('click', ()=>{
+      applyDamage(m,2,true,false);
+      logCombat(`Você fugiu de ${m.name} e sofreu 2 pontos de ENERGIA na fuga.`, 'hit-monster');
+      const fleeEl = document.getElementById('scCombatResult');
+      fleeEl.innerHTML = `<div class="sc-result bad">Fuga — você perdeu 2 ENERGIA (${state.ene.cur}/${state.ene.ini}).</div>
+        <div class="sc-row" style="margin-top:4px;"><button class="sc-btn small" id="scFleeLuck" ${state.sor.cur<=0?'disabled':''}>Testar Sorte na fuga</button></div>`;
+      save(); renderAll(); renderShortcuts();
+      document.getElementById('scFleeLuck')?.addEventListener('click', ()=>{
+        const vals=[rollDie(),rollDie()]; const sum=vals[0]+vals[1];
+        const lucky = sum<=state.sor.cur;
+        state.sor.cur = clamp(state.sor.cur-1,0,state.sor.ini);
+        if(lucky){ state.ene.cur = clamp(state.ene.cur+1,0,state.ene.ini); }
+        else { state.ene.cur = clamp(state.ene.cur-1,0,state.ene.ini); }
+        logCombat(`Sorte na fuga (${sum}) ${lucky?'boa':'ruim'}.`, lucky?'neutral':'hit-monster');
+        fleeEl.innerHTML += `<div class="sc-result ${lucky?'good':'bad'}" style="margin-top:4px;">🎲 ${sum} — ${lucky?'Recuperou 1 ENE':'Perdeu 1 ENE extra'} (${state.ene.cur}/${state.ene.ini})</div>`;
+        save(); renderAll(); renderShortcuts();
+      });
+    });
+    document.getElementById('scMonsterDmg')?.addEventListener('click', ()=>{
+      m.ene = clamp(m.ene-1, 0, m.eneIni);
+      logCombat(`${m.name} sofreu 1 ponto manual de ENERGIA.`, 'hit-you');
+      if(m.ene<=0){ m.dead=true; m.active=false; logCombat(`${m.name} foi derrotado!`,'victory');
+        const next = state.monsters.find(x=>!x.dead); if(next) next.active=true; }
+      save(); renderAll(); renderShortcuts();
+    });
+  } else {
+    body.innerHTML = `
+      <div class="sc-add-monster">
+        <div class="sc-field"><label>Nome</label><input type="text" id="scMName" placeholder="Goblin"></div>
+        <div class="sc-field"><label>HAB</label><input type="number" id="scMHab" value="6" min="1"></div>
+        <div class="sc-field"><label>ENE</label><input type="number" id="scMEne" value="6" min="1"></div>
+        <button class="sc-btn primary" id="scAddMonster" style="padding:5px 4px;font-size:10px;">+</button>
+      </div>
+      ${m && m.dead ? '<div class="sc-result neutral" style="margin-top:4px;">Criatura derrotada. Registre uma nova acima.</div>' : '<div class="sc-empty">Nenhuma criatura em combate.</div>'}
+    `;
+    document.getElementById('scAddMonster')?.addEventListener('click', ()=>{
+      const name = document.getElementById('scMName').value.trim() || 'Criatura';
+      const hab = parseInt(document.getElementById('scMHab').value) || 6;
+      const ene = parseInt(document.getElementById('scMEne').value) || 6;
+      const mon = { id:'m'+Date.now()+Math.random().toString(16).slice(2), name, habIni:hab, hab, eneIni:ene, ene, active:false, dead:false };
+      if(state.monsters.every(x=>!x.active)) mon.active = true;
+      state.monsters.push(mon);
+      save(); renderMonsters(); renderCombatHead(); renderShortcuts();
+    });
+  }
+}
+
+function scLuckDamage(m, dealtByYou){
+  const vals = [rollDie(), rollDie()];
+  const sum = vals[0]+vals[1];
+  const lucky = sum <= state.sor.cur;
+  state.sor.cur = clamp(state.sor.cur-1, 0, state.sor.ini);
+  if(dealtByYou){
+    const amount = lucky ? 4 : 1;
+    applyDamage(m, amount, false, false);
+    logCombat(`Sorte (${sum}) ${lucky?'boa':'ruim'} — ${m.name} sofreu ${amount} ENE.`, lucky?'hit-you':'neutral');
+  } else {
+    const amount = lucky ? 1 : 3;
+    applyDamage(m, amount, true, false);
+    logCombat(`Sorte (${sum}) ${lucky?'boa':'ruim'} — você sofreu ${amount} ENE.`, lucky?'neutral':'hit-monster');
+  }
+  const res = document.getElementById('scCombatResult');
+  if(res) res.innerHTML += `<div class="sc-result ${lucky?'good':'bad'}" style="margin-top:4px;">🎲 ${vals[0]}+${vals[1]}=${sum} — ${lucky?'Sorte boa!':'Sorte ruim.'}</div>`;
+  save(); renderAll(); renderShortcuts();
+}
+
+function renderScMagic(){
+  const body = document.getElementById('scMagicBody');
+  if(!state.mag.ini){
+    body.innerHTML = '<div class="sc-empty">Role seus índices na Ficha primeiro.</div>';
+    return;
+  }
+  const assigned = Object.entries(state.spellCharges).filter(([,c])=>c.total>0);
+  if(assigned.length===0){
+    body.innerHTML = '<div class="sc-empty">Nenhum encanto escolhido. Vá em Encantos Mágicos.</div>';
+    return;
+  }
+  body.innerHTML = assigned.map(([id,c])=>{
+    const sp = SPELLS.find(s=>s.id===id);
+    return `<div class="sc-spell-item">
+      <span class="sp-name">${sp?sp.name:id}</span>
+      <span class="sp-uses">${c.left}/${c.total}</span>
+      <button class="sc-btn small primary" data-scuse="${id}" ${c.left<=0?'disabled':''}>Usar</button>
+    </div>`;
+  }).join('');
+  body.querySelectorAll('[data-scuse]').forEach(b=>b.addEventListener('click', ()=>{
+    const id = b.dataset.scuse;
+    const sp = SPELLS.find(s=>s.id===id);
+    const c = state.spellCharges[id];
+    if(!c || c.left<=0) return;
+    c.left--;
+    if(sp && sp.recover){
+      const attr = state[sp.recover];
+      const bonus = Math.round(attr.ini/2);
+      attr.cur = clamp(attr.cur + bonus, 0, attr.ini);
+      logCombat(`Encanto de ${sp.name} lançado — ${sp.recover.toUpperCase()} restaurada para ${attr.cur}/${attr.ini}.`, 'neutral', true);
+    } else {
+      const name = sp ? sp.name : id;
+      logCombat(`Encanto de ${name} lançado.`, 'neutral', true);
+    }
+    save(); renderSpells(); renderFicha(); renderSideStats(); renderShortcuts();
+  }));
+}
+
+function renderScInventory(){
+  const body = document.getElementById('scInvBody');
+  body.innerHTML = `
+    <div class="sc-row" style="justify-content:space-between;">
+      <span class="sc-ouro">💰 ${state.ouro} ouro</span>
+      <div class="sc-row" style="gap:2px;">
+        <button class="sc-btn small" id="scOuroMinus" style="min-width:24px;">−</button>
+        <button class="sc-btn small" id="scOuroPlus" style="min-width:24px;">+</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:4px;">
+      <input type="text" id="scItemInput" placeholder="+ item" style="flex:1;all:unset;box-sizing:border-box;background:rgba(0,0,0,.25);border:1px solid var(--hairline);border-radius:4px;padding:4px 6px;color:var(--parch);font-family:'EB Garamond',serif;font-size:12px;">
+      <button class="sc-btn small primary" id="scItemAdd" style="flex:0;">Add</button>
+    </div>
+    <div class="sc-inv-items" id="scItemList"></div>
+  `;
+  document.getElementById('scOuroMinus')?.addEventListener('click', ()=>{ state.ouro=Math.max(0,state.ouro-1); save(); renderEquip(); renderShortcuts(); });
+  document.getElementById('scOuroPlus')?.addEventListener('click', ()=>{ state.ouro++; save(); renderEquip(); renderShortcuts(); });
+  document.getElementById('scItemAdd')?.addEventListener('click', ()=>{
+    const inp = document.getElementById('scItemInput');
+    const v = inp.value.trim();
+    if(v){ state.itens.push(v); inp.value=''; save(); renderEquip(); renderShortcuts(); }
+  });
+  document.getElementById('scItemInput')?.addEventListener('keydown', (e)=>{ if(e.key==='Enter') document.getElementById('scItemAdd')?.click(); });
+  const itemList = document.getElementById('scItemList');
+  if(state.itens.length===0){
+    itemList.innerHTML = '<div class="sc-empty">Mochila vazia.</div>';
+  } else {
+    itemList.innerHTML = state.itens.slice(-10).map((it,i)=>{
+      const realIdx = state.itens.length - 10 + i;
+      return `<div class="sc-item"><span>${escapeHtml(it)}</span><button data-sridx="${realIdx < 0 ? i : realIdx}">×</button></div>`;
+    }).join('');
+    itemList.querySelectorAll('[data-sridx]').forEach(b=>b.addEventListener('click', ()=>{
+      state.itens.splice(parseInt(b.dataset.sridx),1);
+      save(); renderEquip(); renderShortcuts();
+    }));
+  }
+}
+
+// patch renderAll to also render shortcuts
+const _origRenderAll = renderAll;
+renderAll = function(){
+  _origRenderAll();
+  // Don't render shortcuts here — called explicitly to avoid double listeners
+};
+
+// Keyboard shortcuts for story navigation
+document.addEventListener('keydown', (e)=>{
+  if(!state.paragraph.current) return;
+  if(e.key==='ArrowRight' || e.key==='ArrowDown'){
+    e.preventDefault();
+    // Try to go to the next numerical paragraph
+    const n = state.paragraph.current + 1;
+    if(BOOK_PARAGRAPHS && BOOK_PARAGRAPHS[n]) goToParagraph(n);
+  }
+  if(e.key==='ArrowLeft' || e.key==='ArrowUp'){
+    e.preventDefault();
+    if(state.paragraph.history.length>=2){
+      state.paragraph.history.pop();
+      const p = state.paragraph.history[state.paragraph.history.length-1];
+      goToParagraph(p, false);
+    }
+  }
+});
+
+/* ============================ RESET ============================ */
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  if(confirm('Isso vai apagar toda a ficha atual e começar uma nova aventura. Confirma?')){
+    state = defaultState();
+    save();
+    document.getElementById('rollAllResult').innerHTML='';
+    document.getElementById('generalLuckResult').innerHTML='';
+    document.getElementById('combatOutcome').innerHTML='';
+    document.getElementById('fleeResult').innerHTML='';
+    renderAll();
+  }
+});
+
+/* ============================ INIT ============================ */
+function renderAll(){
+  renderFicha();
+  renderSideStats();
+  renderEquip();
+  renderSpells();
+  renderMonsters();
+  renderCombatHead();
+  renderLogFull();
+  renderParagraph();
+  renderStory();
+}
+renderAll();
+</script>
+</body>
+</html>
