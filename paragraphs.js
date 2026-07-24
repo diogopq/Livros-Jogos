@@ -1117,7 +1117,7 @@ Se você parar e usar um Encanto de Percepção Extra-Sensorial
 Vá para 329`, 
   177: `Você está em um corredor estreito. Ele continua por alguns metros e termina em uma porta. A meio
 caminho, descendo a passagem, pode-se ver um arco, de onde alguns degraus levam para baixo.
-Você vai prosseguir na direção da porta (volte para 5) ou se arriscará a descer as escadas (vá para`, 
+Você vai prosseguir na direção da porta (volte para 5) ou se arriscará a descer as escadas (vá para 344)?`, 
   178: `Você corre pela cozinha, perseguido pelo Devlin. Você joga cadeiras, comida, facas e terrinas sobre
 ele, mas nada disso adianta. Você atira uma xícara com líquido para o outro lado da cozinha e, para
 sua surpresa, o Devlin berra quando ela atinge seu corpo incandescente! Então, você tem uma idéia.
@@ -2201,7 +2201,7 @@ Você falhou na sua missão...`,
   343: `Um pouco mais adiante pela passagem, você chega a uma outra bifurcação, onde você pode ir para
 a esquerda (volte para 55) ou para a direita (volte para 249).`, 
   344: `Você desce os degraus. O ar está fresco e estagnado. Há uma porta ao pé da escadaria. Você tentará
-a porta (volte para 7) ou subirá as escadas de volta para ir até a porta para o andar térreo (volte para`, 
+a porta (volte para 7) ou subirá as escadas de volta para ir até a porta para o andar térreo (volte para 5)?`, 
   345: `A criatura geme quando o Encanto faz efeito. Seu enorme peso tornou-se agora um fardo terrível
 para ela. Ela ainda se arrasta na sua direção, mas você consegue desviar-se e contorná-la, partindo
 na direção da porta do outro lado do aposento. Volte para 140.`, 
