@@ -1718,6 +1718,17 @@ Dez Peças de Ouro?
 Volte para 225`, 
   270: `Você pode escolher a porta da esquerda ou a da direita. Se preferir a da esquerda, volte para 185. Se
 quiser tentar a outra porta, volte para 23.`, 
+  271: `Você aperta a mão dele e se apresenta - e grita quando os nervos da sua mão e braço ficam
+dormentes! O'Seamus se escangalha de rir. Você perde um ponto de HABILIDADE, uma vez que
+estava usando seu braço da espada. Você está ficando aborrecido, mas o homenzinho continua a
+apertar a sua mão e rir. Uma risada vem de trás de você, e você se vira e vê o brincalhão flutuando
+no ar, sorrindo. Mas você está ainda apertando a mão dele diante de você... ou não está? Na
+realidade, você compreende agora que está freneticamente apertando a mão de um boneco
+empalhado que balança juntamente com seu braço enquanto você se movimenta. Você atira o
+boneco no chão - mas ele está grudado na sua mão! A situação é ridícula, e você está ficando muito
+zangado. "Só uma brincadeirinha", diz o Duende. "Agora, o que posso fazer por você?" Você
+perguntará a ele o caminho para seguir adiante (vá para 348) ou desembainhará a sua espada (volte
+para 131)?`, 
   272: `Você revista os bolsos dele e encontra oito Peças de Ouro. A Miríade de Bolso infelizmente foi
 danificada na luta, mas talvez você possa encontrar algum uso para ela, podendo levá-la com você.
 Agora você pode investigar a Adega dos Vinhos (volte para 242), ou atravessá-la e seguir adiante
