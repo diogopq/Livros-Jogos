@@ -54,10 +54,8 @@ experimenta a maçaneta da porta (vá para 361)?`,
 caminho por algum tempo. Vá para 367.`, 
   7: `A porta está trancada. Você pode tentar pô-la abaixo, batendo nela com o ombro (vá para 268), ou
 pode lançar um Encanto da Força sobre você mesmo e tentar arrancar a porta das suas dobradiças
-(vá para 116).
-ER
-ção
-Ela observa espantada o aparecimento de uma réplica perfeita dela mesma entre vocês dois. Ela
+(vá para 116).`, 
+  8: `Ela observa espantada o aparecimento de uma réplica perfeita dela mesma entre vocês dois. Ela
 recua um pouco, e você orienta a sua criação para o ataque. Mas, quando elas se aproximam uma da
 outra, acontece uma coisa estranha. Elas parecem ser incapazes de chegar perto uma da outra, como
 duas extremidades giratórias, e sempre separam-se bruscamente de um salto. Porém, sua própria
@@ -80,10 +78,7 @@ Vá para 274
 Pular para debaixo da mesa
 Vá para 335
 Correr para a janela
-Vá para 78
-MORA
-BENS
-Es A`, 
+Vá para 78`, 
   13: `A maçaneta gira e você abre a porta para um outro aposento, onde há bastante atividade. Três
 velhas feias, com narizes e queixos compridos, circulam pelo aposento - que parece ser alguma
 espécie de cozinha
@@ -117,9 +112,7 @@ lagartixas, frascos de líquidos, ervas e frutos silvestres de diferentes formas
 garrafa em especial, contendo um líquido verde transparente, chama a sua atenção. Você não tem
 tempo para ler o rótulo no momento, por isso você a põe no bolso rapidamente, enquanto elas não
 estão olhando. Você lhes diz que a cozinha parece estar em ordem e sai pela porta do lado oposto da
-cozinha. Vá para 93.
-y O
-ra?`, 
+cozinha. Vá para 93.`, 
   18: `Ele aponta para uma seção logo acima do chão, que você examina. Finalmente, você escolhe um
 volume e senta para ler. Balthus Dire aparentemente é o terceiro de uma linhagem de Feiticeiros
 Senhores da Guerra que governa a Torre Negra e o Reino da Rocha Escarpada. Chegou ao poder
@@ -2266,11 +2259,7 @@ Volte para 16
 Pedirá desculpas por perturbar a criatura?
 Volte para 216
 Vai se preparar para usar um Encanto?
-Volte para 11
-
-USP ERES
-EEN P
-e SS`, 
+Volte para 11`, 
   353: `Há muitas armas mortais no interior do armário, mas uma espada com o fio azulado chama a sua
 atenção. Balthus Dire vê você pegar esta espada e fica louco de raiva. "Não toque nesta arma!" ele
 grita. Mas é tarde demais. Você
@@ -2308,19 +2297,7 @@ Volte para 146
 Decidir não se arriscar e sair pela porta da esquerda
 Volte para 185
 Sair pela porta da direita
-Volte para 23
-
-ES |
-TT)
-pas
-st O A
-À Il
-“hum
-pe
-se —
-ce Ea
-Lene
-e O`, 
+Volte para 23`, 
   357: `A criatura é aparentemente surda-muda. Você a saúda em todas as línguas que conhece, mas ela
 continua de pé em silêncio. Você se desloca na direção do centro do aposento. Volte para 200.`, 
   358: `Infelizmente, você não está muito em posição de fazer ameaças vãs. O feiticeiro simplesmente ri
